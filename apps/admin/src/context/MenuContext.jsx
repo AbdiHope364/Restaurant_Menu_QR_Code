@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { apiClient as api } from '@ethio-buna/shared';
+import { menuApi } from '@ethio-buna/shared';
 import toast from 'react-hot-toast';
 
 const MenuContext = createContext();
@@ -13,15 +13,25 @@ export const MenuProvider = ({ children }) => {
     setLoading(true);
     try {
       const [menuRes, catRes] = await Promise.all([
-        api.get('/menu?adminView=true'),
-        api.get('/categories'),
+        menuApi.getAll({ adminView: true }),
+        menuApi.getCategories(),
       ]);
 
-      setItems(menuRes.data?.data || menuRes.data || []);
-      setCategories(catRes.data?.data || catRes.data || []);
+      const itemsArr = Array.isArray(menuRes?.data)
+        ? menuRes.data
+        : Array.isArray(menuRes)
+        ? menuRes
+        : [];
+      const catsArr = Array.isArray(catRes?.data)
+        ? catRes.data
+        : Array.isArray(catRes)
+        ? catRes
+        : [];
+
+      setItems(itemsArr);
+      setCategories(catsArr);
     } catch (error) {
-      console.log(error);
-      toast.error('Failed to sync with server');
+      console.error('MenuContext fetchData error:', error);
     } finally {
       setLoading(false);
     }
@@ -29,7 +39,7 @@ export const MenuProvider = ({ children }) => {
 
   const addMenuItem = async (payload) => {
     try {
-      await api.post('/menu', payload);
+      await menuApi.create(payload);
       toast.success('Dish Published!');
       await fetchData();
     } catch (err) {
@@ -39,7 +49,7 @@ export const MenuProvider = ({ children }) => {
 
   const updateMenuItem = async (id, payload) => {
     try {
-      await api.put(`/menu/${id}`, payload);
+      await menuApi.update(id, payload);
       toast.success('Dish Updated!');
       await fetchData();
     } catch (err) {
@@ -49,8 +59,7 @@ export const MenuProvider = ({ children }) => {
 
   const toggleAvailability = async (id, isAvailable) => {
     try {
-      await api.patch(`/menu/${id}/toggle`, { isAvailable });
-
+      await menuApi.toggle(id, isAvailable);
       setItems((prev) =>
         Array.isArray(prev)
           ? prev.map((item) =>
@@ -58,8 +67,9 @@ export const MenuProvider = ({ children }) => {
             )
           : [],
       );
-
-      toast.success('Status Updated');
+      toast.success(isAvailable ? 'Item Marked In-Stock' : 'Item Hidden (Out of Stock)', {
+        icon: isAvailable ? '✅' : '🚫',
+      });
     } catch (error) {
       toast.error('Toggle failed');
     }
@@ -67,9 +77,9 @@ export const MenuProvider = ({ children }) => {
 
   const deleteMenuItem = async (id) => {
     try {
-      await api.delete(`/menu/${id}`);
+      await menuApi.remove(id);
       setItems((prev) => prev.filter((item) => item.id !== id));
-      toast.success('Deleted');
+      toast.success('Dish Deleted');
     } catch (error) {
       toast.error('Delete failed');
     }
@@ -77,6 +87,14 @@ export const MenuProvider = ({ children }) => {
 
   useEffect(() => {
     fetchData();
+
+    const handleMenuUpdate = () => {
+      fetchData();
+    };
+    window.addEventListener('menu_updated', handleMenuUpdate);
+    return () => {
+      window.removeEventListener('menu_updated', handleMenuUpdate);
+    };
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useOverview } from '../../../hooks/useOverview';
 import {
   Utensils,
@@ -11,19 +11,22 @@ import {
   ArrowRight,
   Loader2,
   Star,
+  ChefHat,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
-import { analyticsService } from '../../services/analyticsService';
+import { useSettings } from '@ethio-buna/shared';
 
 const AdminDashboard = () => {
   const { data, isLoading, error } = useOverview();
+  const { theme, formatPrice } = useSettings();
 
   if (isLoading) {
     return (
       <AdminLayout title="Operational Overview">
         <div className="h-96 flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="animate-spin text-orange-600" size={40} />
+          <Loader2 className={`animate-spin ${theme.textPrimary}`} size={40} />
           <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">
             Syncing Live Data...
           </p>
@@ -32,7 +35,6 @@ const AdminDashboard = () => {
     );
   }
 
-  //  Map real data to KPI cards
   const stats = [
     {
       label: "Today's Scans",
@@ -100,44 +102,54 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* QUICK ACTIONS CARD */}
-            <div className="bg-orange-600 rounded-[3rem] p-8 text-white shadow-xl shadow-orange-200 relative overflow-hidden">
+            <div className={`${theme.primary} rounded-[3rem] p-8 text-white shadow-xl ${theme.shadow} relative overflow-hidden`}>
               <div className="relative z-10">
                 <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                   <Zap size={20} /> Quick Management
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Link
+                    to="/dashboard/orders"
+                    className="bg-white/10 hover:bg-white/20 p-4 rounded-[1.5rem] transition-all group border border-white/10 flex flex-col justify-between"
+                  >
+                    <ChefHat className="mb-2 group-hover:scale-110 transition-transform" size={20} />
+                    <p className="text-[10px] font-black uppercase tracking-wider text-white">
+                      Live Orders
+                    </p>
+                  </Link>
+
                   <Link
                     to="/dashboard/menu"
-                    className="bg-white/10 hover:bg-white/20 p-5 rounded-[1.5rem] transition-all group border border-white/5"
+                    className="bg-white/10 hover:bg-white/20 p-4 rounded-[1.5rem] transition-all group border border-white/10 flex flex-col justify-between"
                   >
-                    <Plus className="mb-2 group-hover:rotate-90 transition-transform" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-orange-100">
-                      Add New Dish
+                    <Plus className="mb-2 group-hover:rotate-90 transition-transform" size={20} />
+                    <p className="text-[10px] font-black uppercase tracking-wider text-white">
+                      New Dish
                     </p>
                   </Link>
 
                   <Link
                     to="/dashboard/qr"
-                    className="bg-white/10 hover:bg-white/20 p-5 rounded-[1.5rem] transition-all group border border-white/5"
+                    className="bg-white/10 hover:bg-white/20 p-4 rounded-[1.5rem] transition-all group border border-white/10 flex flex-col justify-between"
                   >
-                    <QrCode className="mb-2 group-hover:scale-110 transition-transform" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-orange-100">
-                      Generate QR
+                    <QrCode className="mb-2 group-hover:scale-110 transition-transform" size={20} />
+                    <p className="text-[10px] font-black uppercase tracking-wider text-white">
+                      Table QRs
                     </p>
                   </Link>
 
                   <Link
-                    to="/dashboard/categories"
-                    className="bg-white/10 hover:bg-white/20 p-5 rounded-[1.5rem] transition-all group border border-white/5"
+                    to="/dashboard/settings"
+                    className="bg-white/10 hover:bg-white/20 p-4 rounded-[1.5rem] transition-all group border border-white/10 flex flex-col justify-between"
                   >
-                    <Tag className="mb-2 group-hover:scale-110 transition-transform" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-orange-100">
-                      New Category
+                    <SettingsIcon className="mb-2 group-hover:rotate-45 transition-transform" size={20} />
+                    <p className="text-[10px] font-black uppercase tracking-wider text-white">
+                      Branding
                     </p>
                   </Link>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none" />
             </div>
 
             {/* REAL LATEST INVENTORY LIST */}
@@ -148,7 +160,7 @@ const AdminDashboard = () => {
                 </h3>
                 <Link
                   to="/dashboard/menu"
-                  className="text-orange-600 text-[10px] font-black flex items-center gap-1 uppercase tracking-widest hover:underline"
+                  className={`${theme.textPrimary} text-[10px] font-black flex items-center gap-1 uppercase tracking-widest hover:underline`}
                 >
                   View All <ArrowRight size={14} />
                 </Link>
@@ -197,20 +209,18 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
             <div className="flex justify-between items-center mb-8">
               <h3 className="font-bold text-slate-800 uppercase text-sm tracking-widest flex items-center gap-2">
-                <MessageSquare size={18} className="text-orange-500" />
+                <MessageSquare size={18} className={theme.textPrimary} />
                 Recent Feedback
               </h3>
-              {/* 👈 LINK TO THE FULL PAGE */}
               <Link
                 to="/dashboard/ratings"
-                className="text-orange-600 text-[10px] font-black uppercase hover:underline"
+                className={`${theme.textPrimary} text-[10px] font-black uppercase hover:underline`}
               >
                 View All
               </Link>
             </div>
 
-            <div className="space-y-8">
-              {/* Map through the latest 3 ratings from your data object */}
+            <div className="space-y-6">
               {data?.recentRatings?.length > 0 ? (
                 data.recentRatings.map((rating) => (
                   <div
@@ -218,7 +228,7 @@ const AdminDashboard = () => {
                     className="border-b border-slate-50 pb-6 last:border-0"
                   >
                     <div className="flex gap-1 text-yellow-400 mb-2">
-                      {[...Array(rating.ratingValue)].map((_, i) => (
+                      {[...Array(rating.ratingValue || 5)].map((_, i) => (
                         <Star key={i} size={10} fill="currentColor" />
                       ))}
                     </div>
@@ -226,7 +236,7 @@ const AdminDashboard = () => {
                       "{rating.comment || 'Excellent service!'}"
                     </p>
                     <p className="text-[9px] text-slate-400 mt-2 font-black uppercase tracking-widest">
-                      By {rating.customerName} on {rating.menuItem?.name}
+                      By {rating.customerName || 'Guest'} on {rating.menuItem?.name || 'Dish'}
                     </p>
                   </div>
                 ))

@@ -3,9 +3,22 @@ import { X, Camera, Loader2, Trash2, Info } from 'lucide-react';
 import { useMenu } from '../../context/MenuContext';
 import { menuApi } from '@ethio-buna/shared';
 
+const DEFAULT_FALLBACK_CATEGORIES = [
+  { id: 'cat-main', name: 'Main Courses' },
+  { id: 'cat-hot-drinks', name: 'Hot Drinks & Coffee' },
+  { id: 'cat-cold-drinks', name: 'Cold Beverages & Juices' },
+  { id: 'cat-appetizers', name: 'Appetizers & Starters' },
+  { id: 'cat-desserts', name: 'Desserts & Sweets' },
+  { id: 'cat-specials', name: 'Chef Specials' },
+];
+
 const MenuFormModal = ({ editItem, onClose }) => {
-  const { categories, fetchData } = useMenu();
+  const { categories: contextCategories, fetchData } = useMenu();
   const fileInputRef = useRef(null);
+
+  const categories = Array.isArray(contextCategories) && contextCategories.length > 0
+    ? contextCategories
+    : DEFAULT_FALLBACK_CATEGORIES;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -14,7 +27,7 @@ const MenuFormModal = ({ editItem, onClose }) => {
 
   const [formData, setFormData] = useState({
     name: '',
-    categoryId: '',
+    categoryId: categories[0]?.id || '',
     price: '',
     oldPrice: '',
     description: '',

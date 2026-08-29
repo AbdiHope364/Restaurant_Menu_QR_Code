@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internship Report - Digital QR Restaurant Menu & Operations Platform</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    @page {
+      size: A4;
+      margin: 15mm 15mm 20mm 15mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e293b;
+      background-color: #f8fafc;
+      line-height: 1.6;
+      font-size: 13px;
+      padding: 40px 20px;
+    }
+
+    .doc-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 50px 60px;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e2e8f0;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .doc-container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+    }
+
+    .header-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 35px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(234, 88, 12, 0.2);
+      color: #fb923c;
+      border: 1px solid rgba(251, 146, 60, 0.3);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .header-subtitle {
+      font-size: 13.5px;
+      color: #94a3b8;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .meta-item strong {
+      color: #ea580c;
+      display: inline-block;
+      min-width: 130px;
+      text-transform: uppercase;
+      font-size: 10.5px;
+      letter-spacing: 0.05em;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin-top: 32px;
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #ea580c;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .card-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 11.5px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 12px;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px 18px;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+    }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .toc-item span:last-child {
+      color: #ea580c;
+    }
+
+    .print-floating-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ea580c;
+      color: #ffffff;
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-weight: 800;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: none;
+      box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      z-index: 999;
+    }
+
+    .print-floating-btn:hover {
+      background: #c2410c;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Print Trigger -->
+  <button class="print-floating-btn no-print" onclick="window.print()">
+    🖨️ Print / Save as PDF
+  </button>
+
+  <div class="doc-container">
+
+    <!-- Header Banner -->
+    <div class="header-banner">
+      <span class="header-badge">Internship & Final Project Report</span>
+      <h1>Digital QR Restaurant Menu & Operations Platform</h1>
+      <p class="header-subtitle">
+        Transforming Physical Paper Menus into an Interactive Digital Catalog with Role-Based Staff Management (Admin & Waiter Roles).
+      </p>
+    </div>
+
+    <!-- Metadata Card -->
+    <div class="meta-box">
+      <div class="meta-item"><strong>Candidate / Intern:</strong> Software Engineering Intern</div>
+      <div class="meta-item"><strong>Program of Study:</strong> B.Sc. in Computer Science / Software Engineering</div>
+      <div class="meta-item"><strong>Core Mission:</strong> Physical to Digital Menu Transformation & Staff RBAC</div>
+      <div class="meta-item"><strong>Host Repository:</strong> Restaurant_Menu_QR_Code (npm Monorepo)</div>
+      <div class="meta-item"><strong>Roles Supported:</strong> Administrator (Full CRUD/Settings) vs. Waiter (Live Operations)</div>
+      <div class="meta-item"><strong>Tech Stack:</strong> React 18, Vite 5, Tailwind CSS, Framer Motion, Axios</div>
+    </div>
+
+    <!-- Table of Contents -->
+    <h2>Table of Contents</h2>
+    <div style="margin-bottom: 25px;">
+      <div class="toc-item"><span>1. Executive Summary & Core Mission</span><span>Section 1</span></div>
+      <div class="toc-item"><span>2. Introduction: Transitioning Physical Menus to Digital</span><span>Section 2</span></div>
+      <div class="toc-item"><span>3. Company Background & Technical Ecosystem Profile</span><span>Section 3</span></div>
+      <div class="toc-item"><span>4. Customer QR Menu Discovery & Ordering Experience</span><span>Section 4</span></div>
+      <div class="toc-item"><span>5. Admin & Waiter Operational Control (RBAC)</span><span>Section 5</span></div>
+      <div class="toc-item"><span>6. Technical Skills & Knowledge Utilized</span><span>Section 6</span></div>
+      <div class="toc-item"><span>7. Collaboration, Agile Processes & Teamwork</span><span>Section 7</span></div>
+      <div class="toc-item"><span>8. Project Highlights & Deep-Dive Case Studies</span><span>Section 8</span></div>
+      <div class="toc-item"><span>9. Challenges Faced, Root Cause Analysis & Solutions</span><span>Section 9</span></div>
+      <div class="toc-item"><span>10. Organizational Value Added, Handover & Conclusion</span><span>Section 10</span></div>
+    </div>
+
+    <!-- 1. Executive Summary -->
+    <h2>1. Executive Summary & Core Mission</h2>
+    <p>
+      The <strong>primary purpose of this project</strong> is the complete digital transformation of dine-in operations: <strong>replacing physical paper menus with an interactive, mobile-first QR menu platform</strong>.
+    </p>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">📱 Instant Guest QR Menu</div>
+        <div class="card-desc">
+          When guests scan the table QR code, all restaurant offerings appear immediately—including foods, hot/cold drinks, appetizers, desserts, and daily chef specials with real-time stock availability.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">👨‍🍳 Admin & Waiter Control (RBAC)</div>
+        <div class="card-desc">
+          Admins have full control to <strong>Add, Edit, Delete, and Hide/Show (Stock Toggle)</strong> items. Waiters have dedicated role-based access to the Live Kitchen queue, table service alerts, and stock toggles.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Introduction -->
+    <h2>2. Introduction: Transitioning Physical Menus to Digital</h2>
+    <h3>2.1 Limitations of Physical Paper Menus</h3>
+    <p>
+      Physical menus suffer from high reprinting costs, physical wear and tear, inability to reflect out-of-stock items, slow table turnarounds, and lack of dietary/allergen transparency. Whenever dishes or prices change, physical menus must be redesigned, printed, and laminated.
+    </p>
+    <h3>2.2 Digital QR Solution & Academic Objectives</h3>
+    <p>
+      This platform eliminates these bottlenecks by providing instant browser-based QR menus with live availability toggling, dietary filters, and direct kitchen order dispatching. The project reinforces computer science coursework in distributed web architecture, role-based security, state synchronization, and human-computer interaction.
+    </p>
+
+    <!-- 3. Company Background -->
+    <h2>3. Company Background & Profile</h2>
+    <p>
+      The host organization operates in the <strong>Hospitality Technology (FoodTech) & SaaS industry</strong>, providing contactless dining menus, real-time Kitchen Display Systems (KDS), table management, and analytics to hospitality venues.
+    </p>
+
+    <div class="page-break"></div>
+
+    <!-- 4. Customer Experience -->
+    <h2>4. Customer QR Menu Discovery & Ordering Experience</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">🍽️ Comprehensive Food & Beverage Catalog</div>
+        <div class="card-desc">
+          Displays all food, drinks, desserts, and specials organized by clear category tabs with real-time stock status.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🌱 Dietary & Allergen Filters</div>
+        <div class="card-desc">
+          Interactive pills for Vegetarian (🌱), Vegan (🌿), Gluten-Free (🌾), Halal (☪️), and Spicy levels (🌶️ 1-3).
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🛒 Interactive Cart Drawer</div>
+        <div class="card-desc">
+          Add items, adjust quantities, provide special kitchen notes (e.g. <em>"no onions"</em>), calculate tax, and submit orders directly.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🛎️ Table Service Floating Actions</div>
+        <div class="card-desc">
+          Instant <strong>Call Waiter</strong> and <strong>Request Bill</strong> (Cash / Card) alerts sent directly to staff with the table number.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Admin & Waiter Controls -->
+    <h2>5. Admin & Waiter Operational Control (RBAC)</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">⚙️ Full Admin CRUD & Stock Toggle</div>
+        <div class="card-desc">
+          Admins can add new dishes/drinks with multiple images, modify prices, delete discontinued items, and toggle items between Active (In-Stock) and Hidden (Out-of-Stock).
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">👨‍🍳 Waiter / Staff Role Access</div>
+        <div class="card-desc">
+          Waitstaff are granted dedicated access to the Live Kitchen Orders Queue (<code class="inline">/dashboard/orders</code>), table assistance alerts, and item availability toggles on the floor.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🏷️ Printable Acrylic Table Stand PDF</div>
+        <div class="card-desc">
+          Generates print-ready <strong>A5 PDF Table Tents</strong> containing the restaurant logo, table number, Wi-Fi credentials, and high-res QR code.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🎨 White-Label Branding Panel</div>
+        <div class="card-desc">
+          Customize restaurant name, tagline, logo, currency (<code class="inline">ETB</code>, <code class="inline">USD $</code>, <code class="inline">EUR €</code>, <code class="inline">GBP £</code>), and 7 color themes with live mobile preview.
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Technical Skills -->
+    <h2>6. Technical Skills & Knowledge Utilized</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Technologies & Tools</th>
+          <th>Practical Application in Project</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Frontend Architecture</strong></td>
+          <td>React 18, JavaScript (ES6+), Vite 5</td>
+          <td>Hooks (useContext, useState, useEffect, useRef), custom providers, HMR build pipelines.</td>
+        </tr>
+        <tr>
+          <td><strong>UI & Styling</strong></td>
+          <td>Tailwind CSS 3, Framer Motion 10</td>
+          <td>Utility-first responsive layouts, dynamic theme variables, spring drawer animations.</td>
+        </tr>
+        <tr>
+          <td><strong>Data & State</strong></td>
+          <td>Axios, REST API, LocalStorage</td>
+          <td>JWT request interceptors, cross-tab reactive broadcasting, offline fallbacks.</td>
+        </tr>
+        <tr>
+          <td><strong>Document Generation</strong></td>
+          <td>jsPDF, html2canvas, qrcode.react</td>
+          <td>Client-side vector PDF generation for acrylic table tents and QR code rasterization.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- 7. Highlights & Case Studies -->
+    <h2>7. Project Highlights & Deep-Dive Case Studies</h2>
+    <h3>7.1 Case Study: Real-Time Table Ordering & Live Kitchen Queue</h3>
+    <p>
+      <strong>Problem:</strong> Paper menus cause order errors, miscommunicated dietary requests, and billing bottlenecks.
+    </p>
+    <p>
+      <strong>Solution:</strong> Built an end-to-end table ordering pipeline with an animated cart drawer, live status progression (<span style="color:#ea580c; font-weight:bold;">Pending</span> ➔ <span style="color:#0284c7; font-weight:bold;">In Kitchen</span> ➔ <span style="color:#16a34a; font-weight:bold;">Ready</span> ➔ <span style="color:#9333ea; font-weight:bold;">Served</span>), and instant table assistance banner alerts.
+    </p>
+
+    <!-- 8. Challenges & Solutions -->
+    <h2>8. Challenges Faced & Solutions</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Technical Challenge</th>
+          <th>Root Cause</th>
+          <th>Engineering Solution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Vite 5 / Node Toolchain Alignment</strong></td>
+          <td>Alpha devDependencies caused native binding conflicts on Node environments.</td>
+          <td>Realigned all workspaces to stable Vite 5 and standardized root <code class="inline">package.json</code> configurations.</td>
+        </tr>
+        <tr>
+          <td><strong>Cross-Tab State Sync</strong></td>
+          <td>Admin settings updates did not reflect immediately in open customer tabs.</td>
+          <td>Implemented <code class="inline">storage</code> event listeners and custom <code class="inline">window.dispatchEvent</code> triggers.</td>
+        </tr>
+        <tr>
+          <td><strong>High-DPI PDF QR Printing</strong></td>
+          <td>Canvas QR codes appeared pixelated when rendered into print PDF dimensions.</td>
+          <td>Configured <code class="inline">html2canvas</code> with a 3x render scale and high-precision error correction (<code class="inline">level="H"</code>).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 9. Value & Deliverables -->
+    <h2>9. Organizational Value Added & Deliverables</h2>
+    <div class="card" style="margin-top: 10px;">
+      <div class="card-title">📦 Summary of Deliverables Handed Over:</div>
+      <div class="card-desc" style="font-size: 12px; color: #334155; line-height: 1.8;">
+        1. <strong>Full Monorepo Codebase:</strong> Clean React 18 / Vite source code in <code class="inline">apps/admin</code>, <code class="inline">apps/customer</code>, and <code class="inline">packages/shared</code>.<br>
+        2. <strong>Digital Menu Catalog:</strong> Mobile-first menu displaying all food, drink, and dessert categories.<br>
+        3. <strong>Admin & Waiter Control Suite:</strong> Complete Add, Edit, Delete, and In-Stock Hide/Show toggle tools.<br>
+        4. <strong>Live Kitchen Display System:</strong> Real-time table order Kanban and waiter call alert system.<br>
+        5. <strong>Acrylic Table Stand PDF Generator:</strong> Single-click print-ready A5 PDF table tent generator.<br>
+        6. <strong>Complete Documentation:</strong> Formatted <code class="inline">README.md</code>, <code class="inline">INTERNSHIP_REPORT.md</code>, and <code class="inline">Project_Documentation.pdf</code>.
+      </div>
+    </div>
+
+    <!-- 10. Conclusion -->
+    <h2>10. Conclusion & Recommendations</h2>
+    <p>
+      The platform successfully achieves the digital transformation of physical paper menus into a high-speed, interactive QR menu. It eliminates printing costs, accelerates table turnover, and empowers both administrators and waitstaff with role-based operational tools.
+    </p>
+
+    <!-- Footer -->
+    <div style="margin-top: 35px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px;">
+      Restaurant QR Menu & Operations Platform • Internship Report & Technical Documentation • Generated 2026
+    </div>
+
+  </div>
+
+</body>
+</html>

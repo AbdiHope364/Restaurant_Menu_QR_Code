@@ -1,13 +1,18 @@
 {
-  "name": "ethio-buna-monorepo",
+  "name": "restaurant-menu-qr-system",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "admin": "npm run dev --workspace=admin-dashboard",
-    "customer": "npm run dev --workspace=customer-menu"
+    "customer": "npm run dev --workspace=customer-menu",
+    "build:admin": "npm run build --workspace=admin-dashboard",
+    "build:customer": "npm run build --workspace=customer-menu",
+    "build": "npm run build:admin && npm run build:customer",
+    "docs:pdf": "node generate_pdf.js"
   },
   "devDependencies": {
     "autoprefixer": "^10.5.2",

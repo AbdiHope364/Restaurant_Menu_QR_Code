@@ -1,8 +1,9 @@
-import { apiClient } from '@ethio-buna/shared';
+import { menuApi } from '@ethio-buna/shared';
 
 export const categoryService = {
   getAll: async () => {
-    const res = await apiClient.get('/categories');
-    return res.data;
+    return await menuApi.getCategories();
   },
 };
+
+export default categoryService;

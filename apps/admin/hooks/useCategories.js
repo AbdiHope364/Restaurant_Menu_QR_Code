@@ -8,28 +8,33 @@ export const useCategories = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const res = await menuApi.getCategories();
-      return res; // already array
+      if (Array.isArray(res?.data)) return res.data;
+      if (Array.isArray(res)) return res;
+      return [];
     },
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
 
+  const categories = Array.isArray(data) ? data : [];
+
   return {
-    categories: data,
+    categories,
     loading: isLoading,
 
     createCategory: async (name) => {
       await queryClient.cancelQueries({ queryKey: ['categories'] });
 
       const previous = queryClient.getQueryData(['categories']) || [];
+      const previousArray = Array.isArray(previous) ? previous : [];
 
       const temp = {
-        id: Date.now().toString(),
+        id: 'cat-' + Date.now().toString(36),
         name,
       };
 
-      queryClient.setQueryData(['categories'], [...previous, temp]);
+      queryClient.setQueryData(['categories'], [...previousArray, temp]);
 
       try {
         const res = await menuApi.createCategory(name);
@@ -45,10 +50,12 @@ export const useCategories = () => {
       await queryClient.cancelQueries({ queryKey: ['categories'] });
 
       const previous = queryClient.getQueryData(['categories']) || [];
+      const previousArray = Array.isArray(previous) ? previous : [];
 
-      queryClient.setQueryData(['categories'], (old = []) =>
-        old.map((c) => (c.id === id ? { ...c, name } : c)),
-      );
+      queryClient.setQueryData(['categories'], (old = []) => {
+        const arr = Array.isArray(old) ? old : [];
+        return arr.map((c) => (c.id === id ? { ...c, name } : c));
+      });
 
       try {
         const res = await menuApi.updateCategory(id, name);
@@ -63,10 +70,11 @@ export const useCategories = () => {
       await queryClient.cancelQueries({ queryKey: ['categories'] });
 
       const previous = queryClient.getQueryData(['categories']) || [];
+      const previousArray = Array.isArray(previous) ? previous : [];
 
       queryClient.setQueryData(
         ['categories'],
-        previous.filter((c) => c.id !== id),
+        previousArray.filter((c) => c.id !== id),
       );
 
       try {
@@ -80,3 +88,5 @@ export const useCategories = () => {
     },
   };
 };
+
+export default useCategories;
