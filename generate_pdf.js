@@ -151,6 +151,7 @@ const metaData = [
   ['Candidate / Intern:', 'Software Engineering Intern'],
   ['Program of Study:', 'B.Sc. in Computer Science / Software Engineering'],
   ['Brand Identity:', 'ITETE BUNA (Authentic Single-Origin & Dining)'],
+  ['Live Customer Menu:', 'https://restaurant-menu-qr-code-customer.vercel.app'],
   ['Core Mission:', 'Physical to Digital QR Menu Migration & Staff RBAC'],
   ['Host Project:', 'Restaurant Menu QR Code Monorepo'],
   ['Tech Stack:', 'React 18, Vite 5, Tailwind CSS, Framer Motion, Axios'],

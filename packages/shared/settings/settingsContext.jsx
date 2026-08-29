@@ -120,6 +120,7 @@ export const DEFAULT_SETTINGS = {
   shortCode: 'IB',
   logoUrl: '/logo.png',
   coverUrl: '',
+  customerAppUrl: 'https://restaurant-menu-qr-code-customer.vercel.app',
   currency: 'ETB',
   currencySymbol: 'ETB',
   themeColor: 'orange',

@@ -110,32 +110,80 @@ export default function QRManagement() {
   };
 
   const getMenuUrl = (shortId) => {
-    // Determine customer app URL (Port 3000 default)
-    const host = window.location.hostname;
-    const protocol = window.location.protocol;
-    return `${protocol}//${host}:3000/menu/qr/${shortId}`;
+    const base =
+      settings.customerAppUrl && settings.customerAppUrl.trim()
+        ? settings.customerAppUrl.replace(/\/+$/, '')
+        : 'https://restaurant-menu-qr-code-customer.vercel.app';
+    return `${base}/menu/qr/${shortId}`;
+  };
+
+  const [customerDomainInput, setCustomerDomainInput] = useState(
+    settings.customerAppUrl || 'https://restaurant-menu-qr-code-customer.vercel.app',
+  );
+  const [showDomainConfig, setShowDomainConfig] = useState(false);
+
+  const handleSaveDomain = () => {
+    updateSettings({ customerAppUrl: customerDomainInput.trim() });
+    toast.success('Customer Menu Destination URL Updated!');
   };
 
   return (
     <AdminLayout title="QR Codes & Table Stands">
       <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in duration-500">
         {/* TOP FORM */}
-        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-4">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-2xl ${theme.bgLight} ${theme.textPrimary} flex items-center justify-center`}>
-              <QrIcon size={20} />
+        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-2xl ${theme.bgLight} ${theme.textPrimary} flex items-center justify-center`}>
+                <QrIcon size={20} />
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">
+                  Generate Table QR Codes
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Scanned by guests to navigate directly to their table's digital menu.
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">
-                Generate Table QR Codes
-              </h2>
-              <p className="text-xs text-slate-400">
-                Create dynamic table destinations with scan tracking & printable acrylic tents.
-              </p>
-            </div>
+
+            <button
+              onClick={() => setShowDomainConfig(!showDomainConfig)}
+              className="text-xs font-black uppercase text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl transition self-start sm:self-auto"
+            >
+              ⚙️ {showDomainConfig ? 'Hide Domain Setup' : 'Live Customer Domain'}
+            </button>
           </div>
 
-          <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-4 pt-2">
+          {/* LIVE CUSTOMER DOMAIN CONFIG */}
+          {showDomainConfig && (
+            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 animate-in fade-in duration-200">
+              <label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                Live Customer Web App URL (Base Destination)
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="url"
+                  value={customerDomainInput}
+                  onChange={(e) => setCustomerDomainInput(e.target.value)}
+                  placeholder="e.g. https://itete-buna-menu.vercel.app or http://192.168.1.5:3000"
+                  className="flex-1 p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-slate-300"
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveDomain}
+                  className={`px-6 py-3.5 rounded-xl ${theme.primary} text-white font-black text-xs uppercase tracking-wider shadow`}
+                >
+                  Save URL
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-400">
+                All generated QR codes and printable acrylic table stands will point to this live customer URL.
+              </p>
+            </div>
+          )}
+
+          <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-4 pt-1">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
