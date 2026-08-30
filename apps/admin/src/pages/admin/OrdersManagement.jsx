@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { ordersService, useSettings } from '@ethio-buna/shared';
 import {
@@ -17,17 +17,25 @@ import {
   CreditCard,
   Banknote,
   Utensils,
-  Volume2,
+  Printer,
+  X,
+  Smartphone,
+  Users,
+  ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function OrdersManagement() {
-  const { theme, formatPrice } = useSettings();
+  const { theme, formatPrice, settings } = useSettings();
   const [orders, setOrders] = useState([]);
   const [serviceRequests, setServiceRequests] = useState([]);
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'pending' | 'preparing' | 'ready' | 'completed'
   const [searchTerm, setSearchTerm] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // KOT Thermal Print Modal state
+  const [selectedOrderForKOT, setSelectedOrderForKOT] = useState(null);
+  const kotPrintRef = useRef(null);
 
   const fetchLiveOrders = async () => {
     const [ords, reqs] = await Promise.all([
@@ -94,6 +102,10 @@ export default function OrdersManagement() {
     }
   };
 
+  const handlePrintKOT = () => {
+    window.print();
+  };
+
   // Filter logic
   const filteredOrders = orders.filter((ord) => {
     const matchesTab = activeTab === 'all' || ord.status === activeTab;
@@ -128,17 +140,17 @@ export default function OrdersManagement() {
       label: 'Ready to Serve',
       badge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
       next: 'completed',
-      nextLabel: 'Mark Delivered & Complete',
+      nextLabel: 'Mark Delivered & Paid',
       nextColor: 'bg-emerald-600 hover:bg-emerald-700',
     },
     completed: {
-      label: 'Completed',
+      label: 'Completed & Settled',
       badge: 'bg-slate-100 text-slate-700 border-slate-200',
       next: null,
       nextLabel: null,
     },
     cancelled: {
-      label: 'Cancelled',
+      label: 'Cancelled / Voided',
       badge: 'bg-red-100 text-red-700 border-red-200',
       next: null,
       nextLabel: null,
@@ -330,17 +342,43 @@ export default function OrdersManagement() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs font-bold bg-slate-50 px-2.5 py-1 rounded-xl text-slate-700">
-                      {order.paymentMethod === 'card' ? <CreditCard size={14} /> : <Banknote size={14} />}
-                      <span className="uppercase text-[10px]">{order.paymentMethod || 'Card'}</span>
+                    <div className="flex items-center gap-1.5">
+                      {/* KOT PRINT BUTTON */}
+                      <button
+                        onClick={() => setSelectedOrderForKOT(order)}
+                        title="Print 80mm Kitchen Order Ticket"
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                      >
+                        <Printer size={15} />
+                      </button>
+
+                      <div className="flex items-center gap-1 text-[10px] font-bold bg-slate-50 px-2.5 py-1.5 rounded-xl text-slate-700 uppercase">
+                        {order.paymentMethod === 'telebirr' ? (
+                          <span className="text-blue-600 font-black">Telebirr</span>
+                        ) : order.paymentMethod === 'chapa' ? (
+                          <span className="text-green-600 font-black">Chapa</span>
+                        ) : order.paymentMethod === 'card' ? (
+                          <span>Card</span>
+                        ) : (
+                          <span>Cash</span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   {/* ITEMS LIST */}
                   <div className="space-y-3 flex-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                      Ordered Items ({order.items?.length || 0})
-                    </p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                        Ordered Items ({order.items?.length || 0})
+                      </p>
+                      {order.splitCount > 1 && (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                          <Users size={11} /> {order.splitCount} Guest Split
+                        </span>
+                      )}
+                    </div>
+
                     <div className="space-y-2">
                       {order.items?.map((item, idx) => (
                         <div
@@ -370,7 +408,14 @@ export default function OrdersManagement() {
                   {/* CARD FOOTER / ACTIONS */}
                   <div className="space-y-3 border-t border-slate-100 pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-slate-500">Order Total</span>
+                      <div>
+                        <span className="text-xs font-bold text-slate-500">Total Bill</span>
+                        {order.tip > 0 && (
+                          <span className="block text-[10px] text-emerald-600 font-bold">
+                            Includes {formatPrice(order.tip)} staff tip
+                          </span>
+                        )}
+                      </div>
                       <span className={`text-lg font-black ${theme.textPrimary}`}>
                         {formatPrice(order.total || order.subtotal)}
                       </span>
@@ -393,7 +438,7 @@ export default function OrdersManagement() {
                           onClick={() => handleStatusChange(order.id, 'cancelled')}
                           className="text-[10px] font-bold text-red-500 hover:underline uppercase tracking-wider"
                         >
-                          Cancel Order
+                          Cancel / Void
                         </button>
                       )}
 
@@ -410,8 +455,88 @@ export default function OrdersManagement() {
             })}
           </div>
         )}
+
+        {/* ================= KOT 80MM THERMAL RECEIPT MODAL ================= */}
+        {selectedOrderForKOT && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-[2.5rem] p-6 max-w-sm w-full shadow-2xl space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <Printer size={18} className={theme.textPrimary} />
+                  <h3 className="font-black text-sm text-slate-900 uppercase">
+                    Kitchen Order Ticket (KOT)
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setSelectedOrderForKOT(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* THERMAL TICKET SIMULATION (80MM ESC/POS) */}
+              <div
+                ref={kotPrintRef}
+                className="bg-slate-50 p-5 rounded-2xl border border-slate-200 font-mono text-xs text-slate-900 space-y-3 leading-relaxed shadow-inner"
+              >
+                <div className="text-center border-b border-dashed border-slate-300 pb-2">
+                  <p className="font-black text-sm uppercase">{settings.restaurantName || 'ITETE BUNA'}</p>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest">*** KITCHEN COPY (KOT) ***</p>
+                </div>
+
+                <div className="flex justify-between text-[11px]">
+                  <span>TABLE: <strong>{selectedOrderForKOT.tableName}</strong></span>
+                  <span>#{selectedOrderForKOT.id?.slice(-4)}</span>
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-500">
+                  <span>TIME: {new Date(selectedOrderForKOT.createdAt).toLocaleTimeString()}</span>
+                  <span>PAY: {selectedOrderForKOT.paymentMethod?.toUpperCase()}</span>
+                </div>
+
+                <div className="border-t border-b border-dashed border-slate-300 py-2 space-y-1.5">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                    <span>QTY  ITEM</span>
+                    <span>PRICE</span>
+                  </div>
+                  {selectedOrderForKOT.items?.map((it, i) => (
+                    <div key={i} className="flex justify-between font-bold">
+                      <span>{it.quantity}x {it.name}</span>
+                      <span>{formatPrice(it.price * it.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {selectedOrderForKOT.notes && (
+                  <div className="bg-white p-2 rounded border border-slate-200 text-[10px]">
+                    <strong>SPECIAL INSTRUCTIONS:</strong><br />
+                    {selectedOrderForKOT.notes}
+                  </div>
+                )}
+
+                <div className="text-right font-black text-sm border-t border-dashed border-slate-300 pt-2">
+                  TOTAL: {formatPrice(selectedOrderForKOT.total || selectedOrderForKOT.subtotal)}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  onClick={() => setSelectedOrderForKOT(null)}
+                  className="py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={handlePrintKOT}
+                  className={`py-3 rounded-xl ${theme.primary} text-white font-bold text-xs uppercase shadow-md flex items-center justify-center gap-1.5`}
+                >
+                  <Printer size={14} /> Print Ticket
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
 }
-
