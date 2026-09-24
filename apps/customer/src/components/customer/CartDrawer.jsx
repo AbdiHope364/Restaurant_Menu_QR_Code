@@ -32,7 +32,7 @@ const CartDrawer = ({
   activeOrder,
   onCancelOrder,
 }) => {
-  const { theme, formatPrice, settings } = useSettings();
+  const { theme, formatPrice, settings, t } = useSettings();
   const [orderNotes, setOrderNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('telebirr'); // 'telebirr' | 'chapa' | 'card' | 'cash'
   const [tipPercent, setTipPercent] = useState(0); // 0 | 5 | 10 | 15
@@ -81,7 +81,7 @@ const CartDrawer = ({
         tableName: tableName || 'Unassigned Table',
         estimatedPrepTime: '15-20 mins',
       });
-      toast.success('Order sent to kitchen & cashier!', { icon: '👨‍🍳' });
+      toast.success(t('sendOrder'), { icon: '👨‍🍳' });
     } finally {
       setIsSubmitting(false);
     }
@@ -119,10 +119,10 @@ const CartDrawer = ({
               </div>
               <div>
                 <h3 className="font-black text-slate-900 uppercase tracking-tight text-base">
-                  Your Table Order
+                  {t('yourTableOrder')}
                 </h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  {tableName || 'Table QR'} • {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
+                  {tableName || t('table')} • {cartItems.length} {cartItems.length === 1 ? t('item') : t('items')}
                 </p>
               </div>
             </div>
@@ -140,7 +140,7 @@ const CartDrawer = ({
             <div className={`p-4 mx-4 mt-4 rounded-2xl border ${theme.borderLight} ${theme.bgLight} space-y-2`}>
               <div className="flex items-center justify-between">
                 <span className={`text-[10px] font-black uppercase tracking-widest ${theme.textPrimary} flex items-center gap-1.5`}>
-                  <Clock size={12} className="animate-spin" /> Active Order #{activeOrder.id?.slice(-4) || 'LIVE'}
+                  <Clock size={12} className="animate-spin" /> {t('activeOrder')} #{activeOrder.id?.slice(-4) || 'LIVE'}
                 </span>
                 <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${theme.primary} text-white`}>
                   {activeOrder.status || 'PREPARING'}
@@ -148,22 +148,22 @@ const CartDrawer = ({
               </div>
 
               <p className="text-xs text-slate-600 font-medium">
-                Estimated kitchen prep time: <span className="font-black text-slate-900">~15–20 mins</span>
+                {t('estimatedPrep')}
               </p>
 
               {cancelTimeLeft > 0 && onCancelOrder && (
                 <div className="flex items-center justify-between pt-1 border-t border-orange-200/50">
                   <span className="text-[10px] text-slate-500">
-                    Change of mind? Cancel window: <strong className="text-orange-600">{formatSeconds(cancelTimeLeft)}</strong>
+                    {t('cancelWindow')} <strong className="text-orange-600">{formatSeconds(cancelTimeLeft)}</strong>
                   </span>
                   <button
                     onClick={() => {
                       onCancelOrder(activeOrder.id);
-                      toast('Order Cancelled', { icon: '↩️' });
+                      toast(t('cancelOrder'), { icon: '↩️' });
                     }}
                     className="text-[10px] font-black uppercase text-red-500 hover:underline flex items-center gap-1"
                   >
-                    <RotateCcw size={11} /> Cancel
+                    <RotateCcw size={11} /> {t('cancelOrder')}
                   </button>
                 </div>
               )}
@@ -178,10 +178,10 @@ const CartDrawer = ({
                   <Utensils size={28} />
                 </div>
                 <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">
-                  Your Cart is Empty
+                  {t('cartEmpty')}
                 </h4>
                 <p className="text-xs text-slate-400 max-w-xs">
-                  Explore our authentic buna, dishes & beverages, then tap + to add items.
+                  {t('cartEmptyDesc')}
                 </p>
               </div>
             ) : (
@@ -201,7 +201,7 @@ const CartDrawer = ({
                         </p>
                         {item.notes && (
                           <p className="text-[10px] text-slate-400 italic mt-1 line-clamp-1">
-                            Note: {item.notes}
+                            {item.notes}
                           </p>
                         )}
                       </div>
@@ -241,18 +241,18 @@ const CartDrawer = ({
                     onClick={onClearCart}
                     className="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-wider transition"
                   >
-                    Clear All Items
+                    {t('clearCart')}
                   </button>
                 </div>
 
                 {/* ORDER NOTES */}
                 <div className="pt-2 space-y-1.5">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
-                    Special Kitchen / Table Instructions
+                    {t('specialInstructions')}
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="e.g. Extra hot water with Buna, sugar on side, spicy awaze..."
+                    placeholder={t('specialInstructionsPlaceholder')}
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
                     className="w-full p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-300"
@@ -263,10 +263,10 @@ const CartDrawer = ({
                 <div className="pt-2 space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <HeartHandshake size={12} className={theme.textPrimary} /> Staff Gratuity / Tip
+                      <HeartHandshake size={12} className={theme.textPrimary} /> {t('staffTip')}
                     </label>
                     <span className="text-[10px] font-bold text-slate-400">
-                      {tipPercent > 0 ? `${tipPercent}% (+${formatPrice(tipAmount)})` : 'None'}
+                      {tipPercent > 0 ? `${tipPercent}% (+${formatPrice(tipAmount)})` : t('noTip')}
                     </span>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
@@ -281,7 +281,7 @@ const CartDrawer = ({
                             : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                         }`}
                       >
-                        {pct === 0 ? 'No Tip' : `${pct}%`}
+                        {pct === 0 ? t('noTip') : `${pct}%`}
                       </button>
                     ))}
                   </div>
@@ -291,10 +291,10 @@ const CartDrawer = ({
                 <div className="pt-2 space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <Users size={12} className={theme.textPrimary} /> Group Table Bill Splitter
+                      <Users size={12} className={theme.textPrimary} /> {t('billSplitter')}
                     </label>
                     <span className="text-[10px] font-bold text-slate-400">
-                      {splitCount > 1 ? `${formatPrice(perPersonAmount)} / guest` : 'Single Bill'}
+                      {splitCount > 1 ? `${formatPrice(perPersonAmount)} / ${t('guest')}` : t('singleBill')}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl">
@@ -309,7 +309,7 @@ const CartDrawer = ({
                             : 'text-slate-500 hover:bg-slate-200'
                         }`}
                       >
-                        {num === 1 ? '1 Person' : `${num} Ways`}
+                        {num === 1 ? t('singleBill') : `${num} ${t('ways')}`}
                       </button>
                     ))}
                   </div>
@@ -318,7 +318,7 @@ const CartDrawer = ({
                 {/* PAYMENT METHOD SELECTION */}
                 <div className="pt-2 space-y-1.5">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
-                    Payment Gateway & Preference
+                    {t('paymentGateway')}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -330,7 +330,7 @@ const CartDrawer = ({
                           : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      <Smartphone size={14} /> Telebirr Wallet
+                      <Smartphone size={14} /> {t('telebirrWallet')}
                     </button>
                     <button
                       type="button"
@@ -341,7 +341,7 @@ const CartDrawer = ({
                           : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      <CreditCard size={14} /> Chapa / CBE
+                      <CreditCard size={14} /> {t('chapaCbe')}
                     </button>
                     <button
                       type="button"
@@ -352,7 +352,7 @@ const CartDrawer = ({
                           : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      <CreditCard size={14} /> Card at Table
+                      <CreditCard size={14} /> {t('cardAtTable')}
                     </button>
                     <button
                       type="button"
@@ -363,7 +363,7 @@ const CartDrawer = ({
                           : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      <Banknote size={14} /> Cash at Table
+                      <Banknote size={14} /> {t('cashAtTable')}
                     </button>
                   </div>
                 </div>
@@ -377,33 +377,33 @@ const CartDrawer = ({
               {/* Cost Breakdown */}
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-slate-500 font-medium">
-                  <span>Subtotal</span>
+                  <span>{t('subtotal')}</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 {settings.taxRate > 0 && (
                   <div className="flex justify-between text-slate-500 font-medium">
-                    <span>Tax ({settings.taxRate}%)</span>
+                    <span>{t('tax')} ({settings.taxRate}%)</span>
                     <span>{formatPrice(taxAmount)}</span>
                   </div>
                 )}
                 {settings.serviceFeeRate > 0 && (
                   <div className="flex justify-between text-slate-500 font-medium">
-                    <span>Service Charge ({settings.serviceFeeRate}%)</span>
+                    <span>{t('serviceCharge')} ({settings.serviceFeeRate}%)</span>
                     <span>{formatPrice(serviceFee)}</span>
                   </div>
                 )}
                 {tipAmount > 0 && (
                   <div className="flex justify-between text-slate-500 font-medium">
-                    <span>Staff Tip ({tipPercent}%)</span>
+                    <span>{t('staffTip')} ({tipPercent}%)</span>
                     <span>+{formatPrice(tipAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-200">
                   <div>
-                    <span>Total</span>
+                    <span>{t('total')}</span>
                     {splitCount > 1 && (
                       <span className="block text-[10px] font-normal text-slate-400">
-                        {splitCount} guests ({formatPrice(perPersonAmount)} each)
+                        {splitCount} {t('guest')}s ({formatPrice(perPersonAmount)} / {t('guest')})
                       </span>
                     )}
                   </div>
@@ -420,12 +420,12 @@ const CartDrawer = ({
                 {isSubmitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Transmitting to Kitchen...</span>
+                    <span>{t('transmittingOrder')}</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 size={16} />
-                    <span>Send Order to Kitchen ({formatPrice(grandTotal)})</span>
+                    <span>{t('sendOrder')} ({formatPrice(grandTotal)})</span>
                   </>
                 )}
               </button>

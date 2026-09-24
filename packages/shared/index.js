@@ -7,6 +7,8 @@ import {
   THEME_PRESETS,
   CURRENCY_OPTIONS,
   DEFAULT_SETTINGS,
+  LANGUAGES,
+  TRANSLATIONS,
 } from './settings/settingsContext';
 
 export {
@@ -18,4 +20,6 @@ export {
   THEME_PRESETS,
   CURRENCY_OPTIONS,
   DEFAULT_SETTINGS,
+  LANGUAGES,
+  TRANSLATIONS,
 };

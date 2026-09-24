@@ -4,7 +4,7 @@ import { useSettings } from '@ethio-buna/shared';
 import toast from 'react-hot-toast';
 
 const QuickActions = ({ tableId, tableName, onRequestService }) => {
-  const { theme, settings } = useSettings();
+  const { theme, settings, t } = useSettings();
   const [modalType, setModalType] = useState(null); // 'waiter' | 'bill' | null
   const [billMethod, setBillMethod] = useState('card');
   const [isCalling, setIsCalling] = useState(false);
@@ -64,20 +64,20 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
         <div className="bg-slate-900/90 backdrop-blur-lg text-white p-1.5 rounded-full shadow-2xl border border-white/10 flex items-center gap-1 pointer-events-auto max-w-sm">
           <button
             onClick={() => setModalType('waiter')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-white/10 text-xs font-bold transition active:scale-95 text-slate-200 hover:text-white"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-white/10 text-xs font-black transition active:scale-95 text-slate-200 hover:text-white uppercase tracking-wider"
           >
             <BellRing size={15} className={theme.textPrimary} />
-            <span>Call Waiter</span>
+            <span>{t('callWaiter')}</span>
           </button>
 
           <div className="w-[1px] h-4 bg-white/20" />
 
           <button
             onClick={() => setModalType('bill')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-white/10 text-xs font-bold transition active:scale-95 text-slate-200 hover:text-white"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full hover:bg-white/10 text-xs font-black transition active:scale-95 text-slate-200 hover:text-white uppercase tracking-wider"
           >
             <Receipt size={15} className="text-green-400" />
-            <span>Request Bill</span>
+            <span>{t('requestBill')}</span>
           </button>
         </div>
       </div>
@@ -100,10 +100,10 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">
-                    Call Waiter to Table
+                    {t('callWaiter')}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1">
-                    Need extra napkins, water, or recommendations for <span className="font-bold text-slate-700">{tableName || 'your table'}</span>?
+                    Need assistance, napkins, water, or order questions for <span className="font-bold text-slate-700">{tableName || 'your table'}</span>?
                   </p>
                 </div>
                 <button
@@ -111,7 +111,7 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
                   disabled={isCalling}
                   className={`w-full py-3.5 rounded-2xl ${theme.primary} ${theme.primaryHover} text-white font-black text-xs uppercase tracking-widest shadow-lg ${theme.shadow} transition active:scale-95 flex items-center justify-center gap-2`}
                 >
-                  {isCalling ? 'Alerting...' : 'Yes, Call Waiter'}
+                  {isCalling ? t('callingWaiter') : t('callWaiter')}
                 </button>
               </div>
             ) : (
@@ -121,10 +121,10 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">
-                    Request Bill for {tableName || 'Table'}
+                    {t('requestBill')} ({tableName || 'Table'})
                   </h3>
                   <p className="text-xs text-slate-400 mt-1">
-                    Select your preferred payment method so your server brings the appropriate terminal.
+                    Select your payment method:
                   </p>
                 </div>
 
@@ -138,7 +138,7 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
                         : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    💳 Card / POS
+                    💳 {t('cardAtTable')}
                   </button>
                   <button
                     type="button"
@@ -149,7 +149,7 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
                         : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    💵 Cash
+                    💵 {t('cashAtTable')}
                   </button>
                 </div>
 
@@ -158,7 +158,7 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
                   disabled={isCalling}
                   className="w-full py-3.5 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-green-600/20 transition active:scale-95 flex items-center justify-center gap-2"
                 >
-                  {isCalling ? 'Requesting...' : 'Request Check'}
+                  {isCalling ? t('requestingBill') : t('requestBill')}
                 </button>
               </div>
             )}
@@ -170,4 +170,3 @@ const QuickActions = ({ tableId, tableName, onRequestService }) => {
 };
 
 export default QuickActions;
-

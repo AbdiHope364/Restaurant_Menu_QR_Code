@@ -31,8 +31,11 @@ export const useQR = () => {
     };
   }, [queryClient]);
 
+  const list = Array.isArray(query.data) ? query.data : [];
+
   return {
-    qrs: Array.isArray(query.data) ? query.data : [],
+    qrList: list,
+    qrs: list,
     loading: query.isLoading,
     error: query.error,
     refetch: query.refetch,

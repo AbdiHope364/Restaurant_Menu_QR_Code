@@ -25,5 +25,26 @@ export default defineConfig({
       allow: ['..', '../../packages/shared', '../../node_modules'],
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'vendor';
+            }
+            if (id.includes('lucide-react') || id.includes('framer-motion')) {
+              return 'ui';
+            }
+          }
+        },
+      },
+    },
+  },
   root: path.resolve(__dirname),
 });

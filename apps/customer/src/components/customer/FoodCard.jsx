@@ -48,7 +48,7 @@ const FoodCard = ({ item, onClick, onQuickAdd, isInCart = false }) => {
           {isOutOfStock ? (
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
               <span className="bg-red-600 text-white font-black text-xs uppercase px-4 py-2 rounded-2xl shadow-xl tracking-wider">
-                Sold Out
+                {t('soldOut')}
               </span>
             </div>
           ) : discountPercent > 0 ? (

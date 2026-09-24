@@ -14,18 +14,18 @@ import CartDrawer from '../../components/customer/CartDrawer';
 import QuickActions from '../../components/customer/QuickActions';
 import { categoryService } from '../../services/categoryService';
 
-const DIETARY_FILTERS = [
-  { id: 'all', label: 'All Items', emoji: '🍽️' },
-  { id: 'veg', label: 'Vegetarian', emoji: '🌱' },
-  { id: 'vegan', label: 'Vegan', emoji: '🌿' },
-  { id: 'gluten_free', label: 'Gluten-Free', emoji: '🌾' },
-  { id: 'halal', label: 'Halal', emoji: '☪️' },
-  { id: 'spicy', label: 'Spicy', emoji: '🌶️' },
-];
-
 const CustomerMenu = () => {
   const { shortId } = useParams();
-  const { theme, settings } = useSettings();
+  const { theme, settings, t } = useSettings();
+
+  const dietaryFilters = [
+    { id: 'all', label: t('allCategories'), emoji: '🍽️' },
+    { id: 'veg', label: t('vegetarian'), emoji: '🌱' },
+    { id: 'vegan', label: t('vegan'), emoji: '🌿' },
+    { id: 'gluten_free', label: t('glutenFree'), emoji: '🌾' },
+    { id: 'halal', label: t('halal'), emoji: '☪️' },
+    { id: 'spicy', label: t('spicy'), emoji: '🌶️' },
+  ];
 
   // --- States ---
   const [menu, setMenu] = useState([]);
@@ -234,7 +234,7 @@ const CustomerMenu = () => {
       {/* DIETARY FILTER PILLS */}
       <div className="px-4 sm:px-6 max-w-7xl mx-auto mb-4 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-2 pb-1">
-          {DIETARY_FILTERS.map((df) => {
+          {dietaryFilters.map((df) => {
             const isActive = activeDietary === df.id;
             return (
               <button

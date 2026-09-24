@@ -1,22 +1,13 @@
 import React, { useState } from 'react';
-import { useSettings } from '@ethio-buna/shared';
-import { Wifi, Globe, ShoppingBag, Check, Copy, X } from 'lucide-react';
-
-const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'am', label: 'አማርኛ', flag: '🇪🇹' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-];
+import { useSettings, LANGUAGES } from '@ethio-buna/shared';
+import { Wifi, ShoppingBag, Check, Copy, X, Globe } from 'lucide-react';
 
 const MenuHeader = ({
   tableName,
   cartCount = 0,
   onOpenCart,
-  currentLang = 'en',
-  onSelectLang,
 }) => {
-  const { settings, theme } = useSettings();
+  const { settings, theme, language, setLanguage, t } = useSettings();
   const [showWifiModal, setShowWifiModal] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [copiedWifi, setCopiedWifi] = useState(false);
@@ -29,7 +20,7 @@ const MenuHeader = ({
     }
   };
 
-  const selectedLangObj = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0];
+  const selectedLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   return (
     <>
@@ -47,21 +38,21 @@ const MenuHeader = ({
               <div
                 className={`w-11 h-11 sm:w-12 sm:h-12 ${theme.primary} rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg ${theme.shadow} shrink-0`}
               >
-                {settings.shortCode || settings.restaurantName?.substring(0, 2).toUpperCase() || 'RM'}
+                {settings.shortCode || 'IB'}
               </div>
             )}
 
             <div className="min-w-0">
               <h1 className="text-base sm:text-lg font-black text-slate-900 uppercase tracking-tight truncate">
-                {settings.restaurantName || 'Restaurant Menu'}
+                {t('appName')}
               </h1>
               <div className="flex items-center gap-2">
                 <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
-                  {settings.tagline || 'Digital Table Menu'}
+                  {t('tagline')}
                 </p>
                 {tableName && (
                   <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${theme.bgLight} ${theme.textPrimary} border ${theme.borderLight} shrink-0`}>
-                    {tableName}
+                    📍 {tableName}
                   </span>
                 )}
               </div>
@@ -81,15 +72,16 @@ const MenuHeader = ({
               </button>
             )}
 
-            {/* LANGUAGE SELECTOR */}
+            {/* TRI-LINGUAL LANGUAGE SELECTOR (ENGLISH, AMHARIC, AFAN OROMO) */}
             {settings.multiLanguageEnabled && (
               <div className="relative">
                 <button
                   onClick={() => setShowLangDropdown(!showLangDropdown)}
-                  className="p-2 sm:p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 transition flex items-center gap-1 text-xs font-bold"
+                  className="p-2 sm:p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 transition flex items-center gap-1.5 text-xs font-black border border-slate-200/60"
+                  title="Switch Language / ቋንቋ / Afaan"
                 >
-                  <span>{selectedLangObj.flag}</span>
-                  <span className="hidden sm:inline uppercase text-[10px]">{selectedLangObj.code}</span>
+                  <span className="text-base leading-none">{selectedLangObj.flag}</span>
+                  <span className="uppercase text-[10px] font-black">{selectedLangObj.code}</span>
                 </button>
 
                 {showLangDropdown && (
@@ -98,23 +90,26 @@ const MenuHeader = ({
                       className="fixed inset-0 z-40"
                       onClick={() => setShowLangDropdown(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-36 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-0.5">
+                      <div className="px-3 py-1 text-[9px] font-black uppercase tracking-wider text-slate-400">
+                        {t('selectLanguage')}
+                      </div>
                       {LANGUAGES.map((lang) => (
                         <button
                           key={lang.code}
                           onClick={() => {
-                            if (onSelectLang) onSelectLang(lang.code);
+                            setLanguage(lang.code);
                             setShowLangDropdown(false);
                           }}
-                          className={`w-full px-3 py-2 text-left text-xs font-bold flex items-center justify-between hover:bg-slate-50 transition ${
-                            currentLang === lang.code ? theme.textPrimary : 'text-slate-700'
+                          className={`w-full px-3 py-2.5 text-left text-xs font-bold flex items-center justify-between hover:bg-slate-50 transition ${
+                            language === lang.code ? `${theme.textPrimary} bg-slate-50` : 'text-slate-700'
                           }`}
                         >
                           <span className="flex items-center gap-2">
-                            <span>{lang.flag}</span>
-                            <span>{lang.label}</span>
+                            <span className="text-base">{lang.flag}</span>
+                            <span className="font-black">{lang.nativeName}</span>
                           </span>
-                          {currentLang === lang.code && <Check size={14} />}
+                          {language === lang.code && <Check size={14} className={theme.textPrimary} />}
                         </button>
                       ))}
                     </div>
@@ -130,7 +125,7 @@ const MenuHeader = ({
                 className={`relative flex items-center gap-2 px-3.5 py-2 rounded-2xl ${theme.primary} ${theme.primaryHover} text-white font-black text-xs shadow-md ${theme.shadow} transition active:scale-95`}
               >
                 <ShoppingBag size={16} />
-                <span className="hidden sm:inline uppercase tracking-widest text-[10px]">Cart</span>
+                <span className="hidden sm:inline uppercase tracking-widest text-[10px]">{t('cart')}</span>
                 {cartCount > 0 && (
                   <span className="w-5 h-5 bg-white text-slate-900 rounded-full flex items-center justify-center text-[10px] font-black shadow">
                     {cartCount}
@@ -158,7 +153,7 @@ const MenuHeader = ({
             </div>
 
             <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-1">
-              Guest Wi-Fi
+              {t('guestWifi')}
             </h3>
             <p className="text-xs text-slate-400 mb-6">
               Connect to our complimentary high-speed guest network.

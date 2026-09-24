@@ -4,12 +4,12 @@ import { useMenu } from '../../context/MenuContext';
 import { menuApi } from '@ethio-buna/shared';
 
 const DEFAULT_FALLBACK_CATEGORIES = [
-  { id: 'cat-main', name: 'Main Courses' },
-  { id: 'cat-hot-drinks', name: 'Hot Drinks & Coffee' },
-  { id: 'cat-cold-drinks', name: 'Cold Beverages & Juices' },
-  { id: 'cat-appetizers', name: 'Appetizers & Starters' },
-  { id: 'cat-desserts', name: 'Desserts & Sweets' },
-  { id: 'cat-specials', name: 'Chef Specials' },
+  { id: 'cat-traditional', name: 'የባህል ምግቦች (Traditional Dishes)' },
+  { id: 'cat-buna-hot', name: 'የኢትዮጵያ ቡና እና ትኩስ መጠጦች (Authentic Buna & Hot)' },
+  { id: 'cat-fasting', name: 'የጾም ምግቦች (Vegan & Fasting Beyaynetu)' },
+  { id: 'cat-breakfast', name: 'የቁርስ ምግቦች (Traditional Breakfasts)' },
+  { id: 'cat-cold-tej', name: 'የቀዘቀዙ መጠጦች እና ጠጅ (Cold Beverages & Tej)' },
+  { id: 'cat-desserts', name: 'ጣፋጭ ምግቦች (Desserts & Sweet Bites)' },
 ];
 
 const MenuFormModal = ({ editItem, onClose }) => {

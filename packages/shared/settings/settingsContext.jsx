@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { LANGUAGES, TRANSLATIONS } from './translations';
 
 const STORAGE_KEY = 'restaurant_custom_settings_v1';
+const LANG_STORAGE_KEY = 'restaurant_menu_language_v1';
+
+export { LANGUAGES, TRANSLATIONS };
 
 export const THEME_PRESETS = {
   orange: {
@@ -124,6 +128,7 @@ export const DEFAULT_SETTINGS = {
   currency: 'ETB',
   currencySymbol: 'ETB',
   themeColor: 'orange',
+  defaultLanguage: 'en',
   address: 'Addis Ababa, Ethiopia',
   phone: '+251 911 000 000',
   wifiName: 'IteteBuna_Guest',
@@ -144,6 +149,9 @@ export const DEFAULT_SETTINGS = {
 const SettingsContext = createContext({
   settings: DEFAULT_SETTINGS,
   theme: THEME_PRESETS.orange,
+  language: 'en',
+  setLanguage: () => {},
+  t: (key) => key,
   updateSettings: () => {},
   resetSettings: () => {},
   formatPrice: (amount) => '',
@@ -158,6 +166,28 @@ export const SettingsProvider = ({ children }) => {
       return DEFAULT_SETTINGS;
     }
   });
+
+  const [language, setLanguageState] = useState(() => {
+    try {
+      return localStorage.getItem(LANG_STORAGE_KEY) || settings.defaultLanguage || 'en';
+    } catch (e) {
+      return 'en';
+    }
+  });
+
+  const setLanguage = (langCode) => {
+    if (TRANSLATIONS[langCode]) {
+      setLanguageState(langCode);
+      try {
+        localStorage.setItem(LANG_STORAGE_KEY, langCode);
+      } catch (e) {}
+    }
+  };
+
+  const t = (key) => {
+    const dict = TRANSLATIONS[language] || TRANSLATIONS.en;
+    return dict[key] || TRANSLATIONS.en[key] || key;
+  };
 
   useEffect(() => {
     try {
@@ -174,6 +204,9 @@ export const SettingsProvider = ({ children }) => {
         try {
           setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(event.newValue) });
         } catch (e) {}
+      }
+      if (event.key === LANG_STORAGE_KEY && event.newValue) {
+        setLanguageState(event.newValue);
       }
     };
     window.addEventListener('storage', handleStorage);
@@ -204,6 +237,9 @@ export const SettingsProvider = ({ children }) => {
       value={{
         settings,
         theme,
+        language,
+        setLanguage,
+        t,
         updateSettings,
         resetSettings,
         formatPrice,
@@ -216,4 +252,3 @@ export const SettingsProvider = ({ children }) => {
 
 export const useSettings = () => useContext(SettingsContext);
 export default SettingsContext;
-

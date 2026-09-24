@@ -9,6 +9,7 @@
   "scripts": {
     "admin": "npm run dev --workspace=admin-dashboard",
     "customer": "npm run dev --workspace=customer-menu",
+    "server": "node mock-server.mjs",
     "build:admin": "npm run build --workspace=admin-dashboard",
     "build:customer": "npm run build --workspace=customer-menu",
     "build": "npm run build:admin && npm run build:customer",

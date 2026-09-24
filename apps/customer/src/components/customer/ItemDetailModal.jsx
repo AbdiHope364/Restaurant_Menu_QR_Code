@@ -19,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '@ethio-buna/shared';
 
 const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
-  const { theme, formatPrice, settings } = useSettings();
+  const { theme, formatPrice, settings, t } = useSettings();
   const [activeIdx, setActiveIdx] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
@@ -68,146 +68,126 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
         className="bg-white w-full max-w-2xl h-[92vh] md:h-auto md:max-h-[90vh] rounded-t-[3rem] md:rounded-[3.5rem] overflow-hidden flex flex-col z-10 shadow-2xl relative"
       >
         {/* SECTION 1: INTERACTIVE CAROUSEL */}
-        <div className="relative h-72 md:h-[380px] shrink-0 bg-slate-100 group">
+        <div className="relative h-64 sm:h-72 md:h-80 bg-slate-900 overflow-hidden shrink-0">
           <AnimatePresence mode="wait">
             <motion.img
               key={activeIdx}
               src={getImgUrl(images[activeIdx]?.imageUrl)}
+              alt={item.name}
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
               className="w-full h-full object-cover"
-              alt={item.name}
             />
           </AnimatePresence>
 
-          {/* Top Floating Badges */}
-          <div className="absolute top-5 left-5 flex flex-col gap-2">
-            <div className="bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-sm border border-white/40">
-              <p className={`text-[10px] font-black uppercase tracking-wider ${theme.textPrimary}`}>
-                {item.category?.name || 'Dish'}
-              </p>
-            </div>
-            {discount > 0 && (
-              <div className="bg-green-500 text-white px-3 py-1 rounded-xl shadow-lg flex items-center gap-1 animate-bounce">
-                <TrendingDown size={14} />
-                <span className="text-[10px] font-black uppercase tracking-tighter">
-                  {discount}% OFF
-                </span>
-              </div>
-            )}
-          </div>
-
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full text-white z-20 transition"
+            className="absolute top-5 right-5 p-2.5 bg-slate-900/60 hover:bg-slate-900/90 backdrop-blur-md text-white rounded-2xl transition shadow-lg z-20"
           >
             <X size={20} />
           </button>
 
-          {/* Carousel Nav Arrows */}
+          {/* Discount Badge */}
+          {discount > 0 && (
+            <div className="absolute top-5 left-5 bg-red-600 text-white px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-1 z-20">
+              <TrendingDown size={14} />
+              <span>{discount}% OFF</span>
+            </div>
+          )}
+
+          {/* Navigation Arrows */}
           {images.length > 1 && (
             <>
               <button
-                onClick={() => setActiveIdx((prev) => (prev - 1 + images.length) % images.length)}
-                className={`absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/30 backdrop-blur-md rounded-full text-white hover:${theme.primary} transition`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-slate-900/40 hover:bg-slate-900/80 backdrop-blur-md text-white rounded-full transition z-20"
               >
                 <ChevronLeft size={20} />
               </button>
               <button
-                onClick={() => setActiveIdx((prev) => (prev + 1) % images.length)}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/30 backdrop-blur-md rounded-full text-white hover:${theme.primary} transition`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveIdx((prev) => (prev + 1) % images.length);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-slate-900/40 hover:bg-slate-900/80 backdrop-blur-md text-white rounded-full transition z-20"
               >
                 <ChevronRight size={20} />
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {images.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === activeIdx ? `${theme.primary} w-8` : 'bg-white/60 w-2'
-                    }`}
-                  />
-                ))}
-              </div>
             </>
+          )}
+
+          {/* Carousel Dots */}
+          {images.length > 1 && (
+            <div className="absolute bottom-4 inset-x-0 flex justify-center gap-1.5 z-20">
+              {images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveIdx(idx)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    activeIdx === idx ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
           )}
         </div>
 
-        {/* SECTION 2: SCROLLABLE INFO BODY */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 pb-28 custom-scrollbar">
-          {/* Main Identity */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="space-y-2 flex-1">
-              <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight uppercase tracking-tight">
-                {item.name}
-              </h2>
-              <div className="flex flex-wrap gap-2.5 items-center">
-                {item.preparationTime && (
-                  <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1 rounded-full text-[10px] font-black text-slate-600 uppercase tracking-wider">
-                    <Clock size={12} /> {item.preparationTime} MINS
-                  </div>
-                )}
-                {item.spicyLevel > 0 && (
-                  <div className="flex items-center gap-1.5 bg-red-50 px-3 py-1 rounded-full text-[10px] font-black text-red-600 uppercase">
-                    <Flame size={12} className="fill-current" /> SPICE LVL {item.spicyLevel}
-                  </div>
-                )}
-                <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1 rounded-full text-[10px] font-black text-amber-700 uppercase tracking-wider">
-                  <Star size={12} className="fill-current text-amber-500" />
-                  {item.ratingAverage ? parseFloat(item.ratingAverage).toFixed(1) : '5.0'}
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <p className={`text-2xl md:text-3xl font-black ${theme.textPrimary}`}>
-                {formatPrice(item.price)}
-              </p>
-              {item.oldPrice && parseFloat(item.oldPrice) > parseFloat(item.price) && (
-                <p className="text-xs text-slate-300 line-through font-bold">
-                  {formatPrice(item.oldPrice)}
-                </p>
+        {/* SECTION 2: SCROLLABLE DETAILS */}
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 pb-28">
+          {/* Header & Meta */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${theme.bgLight} ${theme.textPrimary}`}>
+                {item.category?.name || 'Ethiopian Traditional'}
+              </span>
+              {item.preparationTime && (
+                <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                  <Clock size={12} /> {item.preparationTime} {t('mins')}
+                </span>
               )}
             </div>
-          </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-1.5">
-              <Info size={13} /> Description
-            </h4>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
+              {item.name}
+            </h2>
+
             <p className={`text-slate-600 leading-relaxed font-medium text-sm italic border-l-4 ${theme.borderLight} pl-4 py-1`}>
-              "{item.description || 'Crafted with premium ingredients for an unforgettable culinary experience.'}"
+              "{item.description || 'Crafted with premium authentic Ethiopian ingredients.'}"
             </p>
           </div>
 
           {/* SPECIAL INSTRUCTIONS */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <MessageSquare size={13} /> Special Request / Note for Kitchen
+              <MessageSquare size={13} /> {t('specialInstructions')}
             </label>
             <input
               type="text"
-              placeholder="e.g. No onions, sauce on side, extra crispy..."
+              placeholder={t('specialInstructionsPlaceholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className={`w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none ${theme.ring} focus:ring-2`}
             />
           </div>
 
-          {/* NUTRITION PROFILE (IF AVAILABLE) */}
+          {/* NUTRITION PROFILE */}
           {(item.calories || item.protein || item.carbs || item.fat) && (
             <div className="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-xl relative overflow-hidden">
               <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] text-center mb-4">
-                Nutrition Profile
+                {t('nutrition')}
               </h4>
               <div className="grid grid-cols-4 gap-4 relative z-10">
                 {[
-                  { label: 'Calories', val: item.calories ? `${item.calories} kcal` : '--' },
-                  { label: 'Protein', val: item.protein ? `${item.protein}g` : '--' },
-                  { label: 'Carbs', val: item.carbs ? `${item.carbs}g` : '--' },
-                  { label: 'Fat', val: item.fat ? `${item.fat}g` : '--' },
+                  { label: t('calories'), val: item.calories ? `${item.calories} kcal` : '--' },
+                  { label: t('protein'), val: item.protein ? `${item.protein}g` : '--' },
+                  { label: t('carbs'), val: item.carbs ? `${item.carbs}g` : '--' },
+                  { label: t('fat'), val: item.fat ? `${item.fat}g` : '--' },
                 ].map((n, i) => (
                   <div key={i} className="text-center">
                     <p className={`text-lg font-black text-white ${theme.textPrimary}`}>
@@ -226,7 +206,7 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                <Leaf size={13} className="text-green-500" /> Ingredients
+                <Leaf size={13} className="text-green-500" /> {t('ingredients')}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {item.ingredients?.length > 0 ? (
@@ -239,14 +219,14 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
                     </span>
                   ))
                 ) : (
-                  <p className="text-xs text-slate-400 italic">Fresh market ingredients</p>
+                  <p className="text-xs text-slate-400 italic">Fresh authentic ingredients</p>
                 )}
               </div>
             </div>
 
             <div className="space-y-2">
               <p className="text-[10px] font-black text-red-400 uppercase tracking-widest flex items-center gap-1.5">
-                <ShieldAlert size={13} /> Allergen Info
+                <ShieldAlert size={13} /> {t('allergens')}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {item.allergens?.length > 0 ? (
@@ -264,16 +244,6 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
               </div>
             </div>
           </div>
-
-          {/* RATE DISH BUTTON */}
-          {settings.reviewsEnabled && (
-            <button
-              onClick={onRate}
-              className={`w-full py-3.5 rounded-2xl border border-dashed ${theme.borderLight} ${theme.bgLight} ${theme.textPrimary} font-black uppercase text-xs flex items-center justify-center gap-2 hover:opacity-90 transition`}
-            >
-              <Star size={14} className="fill-current" /> Leave a Review for this Dish
-            </button>
-          )}
         </div>
 
         {/* SECTION 3: FIXED BOTTOM ORDER ACTION BAR */}
@@ -305,7 +275,7 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
             >
               <span className="flex items-center gap-2">
                 <ShoppingBag size={16} />
-                <span>Add to Order</span>
+                <span>{t('addToCart')}</span>
               </span>
               <span className="text-sm font-black">{formatPrice(totalPrice)}</span>
             </button>
