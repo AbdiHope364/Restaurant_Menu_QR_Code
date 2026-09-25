@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { menuApi, ordersService, useSettings } from '@ethio-buna/shared';
+import { menuApi, useSettings } from '@ethio-buna/shared';
 import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
 
 import MenuHeader from '../../components/customer/MenuHeader';
 import CategoryFilter from '../../components/customer/CategoryFilter';
@@ -10,13 +9,11 @@ import FoodCard from '../../components/customer/FoodCard';
 import ItemDetailModal from '../../components/customer/ItemDetailModal';
 import RatingModal from '../../components/customer/RatingModal';
 import SearchBar from '../../components/customer/SearchBar';
-import CartDrawer from '../../components/customer/CartDrawer';
-import QuickActions from '../../components/customer/QuickActions';
 import { categoryService } from '../../services/categoryService';
 
 const CustomerMenu = () => {
   const { shortId } = useParams();
-  const { theme, settings, t } = useSettings();
+  const { theme, t } = useSettings();
 
   const dietaryFilters = [
     { id: 'all', label: t('allCategories'), emoji: '🍽️' },
@@ -35,31 +32,12 @@ const CustomerMenu = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [tableName, setTableName] = useState('');
-  const [currentLang, setCurrentLang] = useState('en');
-
-  // --- Cart & Order States ---
-  const [cart, setCart] = useState(() => {
-    try {
-      const saved = localStorage.getItem('customer_cart_' + (shortId || 'default'));
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeOrder, setActiveOrder] = useState(null);
 
   // --- Modal States ---
   const [selectedItem, setSelectedItem] = useState(null);
   const [ratingItem, setRatingItem] = useState(null);
 
   const hasFetched = useRef(false);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('customer_cart_' + (shortId || 'default'), JSON.stringify(cart));
-    } catch (e) {}
-  }, [cart, shortId]);
 
   useEffect(() => {
     const init = async () => {
@@ -124,73 +102,6 @@ const CustomerMenu = () => {
     init();
   }, [shortId]);
 
-  // --- Cart Operations ---
-  const handleAddToCart = (item, quantity = 1, notes = '') => {
-    setCart((prev) => {
-      const existingIdx = prev.findIndex(
-        (ci) => ci.id === item.id && (ci.notes || '') === (notes || ''),
-      );
-      if (existingIdx > -1) {
-        const updated = [...prev];
-        updated[existingIdx].quantity += quantity;
-        return updated;
-      }
-      return [
-        ...prev,
-        {
-          ...item,
-          cartId: 'cart-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
-          quantity,
-          notes,
-        },
-      ];
-    });
-
-    toast.success(`Added ${quantity}x ${item.name} to order!`, {
-      icon: '🛍️',
-    });
-  };
-
-  const handleUpdateQuantity = (cartId, newQty) => {
-    if (newQty <= 0) {
-      handleRemoveItem(cartId);
-      return;
-    }
-    setCart((prev) =>
-      prev.map((item) => ((item.cartId || item.id) === cartId ? { ...item, quantity: newQty } : item)),
-    );
-  };
-
-  const handleRemoveItem = (cartId) => {
-    setCart((prev) => prev.filter((item) => (item.cartId || item.id) !== cartId));
-  };
-
-  const handleClearCart = () => {
-    setCart([]);
-    toast('Cart cleared', { icon: '🗑️' });
-  };
-
-  const handleSubmitOrder = async (orderData) => {
-    const placed = await ordersService.placeOrder({
-      ...orderData,
-      shortId: shortId || 'DIRECT',
-    });
-    setActiveOrder(placed);
-    setCart([]);
-    setIsCartOpen(false);
-    toast.success('Order received by kitchen!', {
-      icon: '👨‍🍳',
-      duration: 5000,
-    });
-  };
-
-  const handleServiceRequest = async (reqData) => {
-    return await ordersService.requestService({
-      ...reqData,
-      shortId: shortId || 'DIRECT',
-    });
-  };
-
   // --- Dynamic Filtering ---
   const filtered = menu.filter((item) => {
     // 1. Category filter
@@ -213,18 +124,10 @@ const CustomerMenu = () => {
     return matchCat && matchSearch && matchDiet;
   });
 
-  const cartTotalCount = cart.reduce((acc, curr) => acc + (curr.quantity || 1), 0);
-
   return (
-    <div className="min-h-screen bg-[#fafafc] pb-32 overflow-x-hidden">
+    <div className="min-h-screen bg-[#fafafc] pb-24 overflow-x-hidden">
       {/* BRANDING HEADER */}
-      <MenuHeader
-        tableName={tableName}
-        cartCount={cartTotalCount}
-        onOpenCart={() => setIsCartOpen(true)}
-        currentLang={currentLang}
-        onSelectLang={setCurrentLang}
-      />
+      <MenuHeader tableName={tableName} />
 
       {/* SEARCH SECTION */}
       <div className="px-4 sm:px-6 max-w-7xl mx-auto mt-4 mb-3">
@@ -267,7 +170,9 @@ const CustomerMenu = () => {
       <div className="max-w-7xl mx-auto">
         {loading ? (
           <div className="flex h-96 flex-col items-center justify-center space-y-4">
-            <div className={`w-10 h-10 border-4 ${theme.textPrimary} border-t-transparent rounded-full animate-spin`} />
+            <div
+              className={`w-10 h-10 border-4 ${theme.textPrimary} border-t-transparent rounded-full animate-spin`}
+            />
             <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
               Preparing freshness...
             </p>
@@ -284,8 +189,6 @@ const CustomerMenu = () => {
                     key={item.id}
                     item={item}
                     onClick={() => setSelectedItem(item)}
-                    onQuickAdd={(it) => handleAddToCart(it, 1)}
-                    isInCart={cart.some((ci) => ci.id === item.id)}
                   />
                 ))}
               </motion.div>
@@ -298,7 +201,8 @@ const CustomerMenu = () => {
                   No Matching Dishes
                 </h3>
                 <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
-                  We couldn't find anything matching your filters. Try selecting another category or clearing filters.
+                  We couldn't find anything matching your filters. Try selecting
+                  another category or clearing filters.
                 </p>
                 <button
                   onClick={() => {
@@ -316,38 +220,12 @@ const CustomerMenu = () => {
         )}
       </div>
 
-      {/* FLOATING TABLE ACTIONS (Call Waiter / Request Bill) */}
-      {settings.tableServiceEnabled && (
-        <QuickActions
-          tableId={shortId}
-          tableName={tableName}
-          onRequestService={handleServiceRequest}
-        />
-      )}
-
-      {/* CART DRAWER */}
-      {settings.orderingEnabled && (
-        <CartDrawer
-          isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
-          cartItems={cart}
-          onUpdateQuantity={handleUpdateQuantity}
-          onRemoveItem={handleRemoveItem}
-          onClearCart={handleClearCart}
-          onSubmitOrder={handleSubmitOrder}
-          tableId={shortId}
-          tableName={tableName}
-          activeOrder={activeOrder}
-        />
-      )}
-
       {/* --- MODAL SYSTEM --- */}
       <AnimatePresence>
         {selectedItem && (
           <ItemDetailModal
             item={selectedItem}
             onClose={() => setSelectedItem(null)}
-            onAddToCart={handleAddToCart}
             onRate={() => {
               setRatingItem(selectedItem);
               setSelectedItem(null);

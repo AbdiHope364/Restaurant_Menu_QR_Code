@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { useSettings, LANGUAGES } from '@ethio-buna/shared';
-import { Wifi, ShoppingBag, Check, Copy, X, Globe } from 'lucide-react';
+import { Wifi, Check, Copy, X } from 'lucide-react';
 
-const MenuHeader = ({
-  tableName,
-  cartCount = 0,
-  onOpenCart,
-}) => {
+const MenuHeader = ({ tableName }) => {
   const { settings, theme, language, setLanguage, t } = useSettings();
   const [showWifiModal, setShowWifiModal] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
@@ -20,7 +16,8 @@ const MenuHeader = ({
     }
   };
 
-  const selectedLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
+  const selectedLangObj =
+    LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   return (
     <>
@@ -51,7 +48,9 @@ const MenuHeader = ({
                   {t('tagline')}
                 </p>
                 {tableName && (
-                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${theme.bgLight} ${theme.textPrimary} border ${theme.borderLight} shrink-0`}>
+                  <span
+                    className={`text-[9px] font-black px-2 py-0.5 rounded-full ${theme.bgLight} ${theme.textPrimary} border ${theme.borderLight} shrink-0`}
+                  >
                     📍 {tableName}
                   </span>
                 )}
@@ -80,8 +79,12 @@ const MenuHeader = ({
                   className="p-2 sm:p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 transition flex items-center gap-1.5 text-xs font-black border border-slate-200/60"
                   title="Switch Language / ቋንቋ / Afaan"
                 >
-                  <span className="text-base leading-none">{selectedLangObj.flag}</span>
-                  <span className="uppercase text-[10px] font-black">{selectedLangObj.code}</span>
+                  <span className="text-base leading-none">
+                    {selectedLangObj.flag}
+                  </span>
+                  <span className="uppercase text-[10px] font-black">
+                    {selectedLangObj.code}
+                  </span>
                 </button>
 
                 {showLangDropdown && (
@@ -102,36 +105,26 @@ const MenuHeader = ({
                             setShowLangDropdown(false);
                           }}
                           className={`w-full px-3 py-2.5 text-left text-xs font-bold flex items-center justify-between hover:bg-slate-50 transition ${
-                            language === lang.code ? `${theme.textPrimary} bg-slate-50` : 'text-slate-700'
+                            language === lang.code
+                              ? `${theme.textPrimary} bg-slate-50`
+                              : 'text-slate-700'
                           }`}
                         >
                           <span className="flex items-center gap-2">
                             <span className="text-base">{lang.flag}</span>
-                            <span className="font-black">{lang.nativeName}</span>
+                            <span className="font-black">
+                              {lang.nativeName}
+                            </span>
                           </span>
-                          {language === lang.code && <Check size={14} className={theme.textPrimary} />}
+                          {language === lang.code && (
+                            <Check size={14} className={theme.textPrimary} />
+                          )}
                         </button>
                       ))}
                     </div>
                   </>
                 )}
               </div>
-            )}
-
-            {/* CART DRAWER BUTTON */}
-            {settings.orderingEnabled && onOpenCart && (
-              <button
-                onClick={onOpenCart}
-                className={`relative flex items-center gap-2 px-3.5 py-2 rounded-2xl ${theme.primary} ${theme.primaryHover} text-white font-black text-xs shadow-md ${theme.shadow} transition active:scale-95`}
-              >
-                <ShoppingBag size={16} />
-                <span className="hidden sm:inline uppercase tracking-widest text-[10px]">{t('cart')}</span>
-                {cartCount > 0 && (
-                  <span className="w-5 h-5 bg-white text-slate-900 rounded-full flex items-center justify-center text-[10px] font-black shadow">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
             )}
           </div>
         </div>
@@ -148,7 +141,9 @@ const MenuHeader = ({
               <X size={16} />
             </button>
 
-            <div className={`w-12 h-12 ${theme.bgLight} ${theme.textPrimary} rounded-2xl flex items-center justify-center mb-4`}>
+            <div
+              className={`w-12 h-12 ${theme.bgLight} ${theme.textPrimary} rounded-2xl flex items-center justify-center mb-4`}
+            >
               <Wifi size={24} />
             </div>
 
@@ -161,13 +156,21 @@ const MenuHeader = ({
 
             <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6">
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Network Name (SSID)</p>
-                <p className="text-sm font-bold text-slate-800">{settings.wifiName}</p>
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                  Network Name (SSID)
+                </p>
+                <p className="text-sm font-bold text-slate-800">
+                  {settings.wifiName}
+                </p>
               </div>
               <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Password</p>
-                  <p className="text-sm font-mono font-bold text-slate-800">{settings.wifiPassword || 'None'}</p>
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                    Password
+                  </p>
+                  <p className="text-sm font-mono font-bold text-slate-800">
+                    {settings.wifiPassword || 'None'}
+                  </p>
                 </div>
                 {settings.wifiPassword && (
                   <button
