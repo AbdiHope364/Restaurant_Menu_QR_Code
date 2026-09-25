@@ -32,6 +32,8 @@ export const TRANSLATIONS = {
     spicy: 'Spicy',
     soldOut: 'Sold Out',
     addToCart: 'Add to Order',
+    viewDetails: 'View Details',
+    closeModal: 'Close',
 
     // Floating Table Actions
     callWaiter: 'Call Waiter',
@@ -113,6 +115,8 @@ export const TRANSLATIONS = {
     spicy: 'የሚያቃጥል',
     soldOut: 'አልቋል',
     addToCart: 'ወደ ትዕዛዝ ጨምር',
+    viewDetails: 'ዝርዝር ይመልከቱ',
+    closeModal: 'ዝጋ',
 
     // Floating Table Actions
     callWaiter: 'አስተናጋጅ ጥራ',
@@ -194,6 +198,8 @@ export const TRANSLATIONS = {
     spicy: 'Mimmixa Qabu',
     soldOut: 'Dhumateera',
     addToCart: 'Ajajatti Dabali',
+    viewDetails: 'Bal’inaan Ilaali',
+    closeModal: 'Cufi',
 
     // Floating Table Actions
     callWaiter: 'Keessummeessaa Waami',

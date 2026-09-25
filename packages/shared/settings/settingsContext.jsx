@@ -133,16 +133,16 @@ export const DEFAULT_SETTINGS = {
   phone: '+251 911 000 000',
   wifiName: 'IteteBuna_Guest',
   wifiPassword: 'iteteauthentic',
-  tableServiceEnabled: true,
-  orderingEnabled: true,
+  tableServiceEnabled: false,
+  orderingEnabled: false,
   reviewsEnabled: true,
   multiLanguageEnabled: true,
   taxRate: 15,
   serviceFeeRate: 0,
   tableTents: {
-    title: 'SCAN TO VIEW MENU & ORDER',
-    subtitle: 'Point your camera to browse coffee, dishes & call staff',
-    footer: 'Fast Table Service • Free High-Speed WiFi',
+    title: 'SCAN TO VIEW DIGITAL MENU',
+    subtitle: 'Point your camera to browse authentic coffee & traditional dishes',
+    footer: 'Ethiopian Artisanal Dining • Free High-Speed WiFi',
   },
 };
 

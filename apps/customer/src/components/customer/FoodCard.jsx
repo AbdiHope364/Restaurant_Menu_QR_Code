@@ -1,33 +1,40 @@
 import React from 'react';
-import { Star, Flame, Plus, Check, Ban } from 'lucide-react';
+import { Star, Flame, Plus, Check, Ban, Eye, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSettings } from '@ethio-buna/shared';
 
 const FoodCard = ({ item, onClick, onQuickAdd, isInCart = false }) => {
-  const { theme, formatPrice } = useSettings();
+  const { theme, formatPrice, settings, t } = useSettings();
   const primaryImage = item.images?.[0];
   const isOutOfStock = item.isAvailable === false;
 
   const getImgUrl = (path) => {
-    if (!path) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80';
+    if (!path)
+      return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80';
     if (path.startsWith('http')) return path;
-    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl =
+      import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
     return `${backendUrl}/${path.replace(/\\/g, '/')}`;
   };
 
   const discountPercent =
     item.oldPrice && parseFloat(item.oldPrice) > parseFloat(item.price)
-      ? Math.round(((parseFloat(item.oldPrice) - parseFloat(item.price)) / parseFloat(item.oldPrice)) * 100)
+      ? Math.round(
+          ((parseFloat(item.oldPrice) - parseFloat(item.price)) /
+            parseFloat(item.oldPrice)) *
+            100,
+        )
       : 0;
 
   return (
     <motion.div
       layout
-      className={`bg-white rounded-[2.5rem] p-4 sm:p-5 border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-slate-200 group flex flex-col justify-between relative ${
+      className={`bg-white rounded-[2.5rem] p-4 sm:p-5 border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-slate-200 group flex flex-col justify-between relative cursor-pointer ${
         isOutOfStock ? 'opacity-75 grayscale-[30%]' : ''
       }`}
+      onClick={onClick}
     >
-      <div onClick={onClick} className="cursor-pointer">
+      <div>
         {/* 1. IMAGE SECTION */}
         <div className="relative h-56 sm:h-64 w-full rounded-[2rem] overflow-hidden mb-4 bg-slate-100">
           <img
@@ -39,7 +46,9 @@ const FoodCard = ({ item, onClick, onQuickAdd, isInCart = false }) => {
 
           {/* Category Tag */}
           <div className="absolute top-3.5 left-3.5 bg-white/90 backdrop-blur-md px-3.5 py-1 rounded-xl shadow-sm border border-white/40">
-            <p className={`text-[10px] font-black uppercase tracking-wider ${theme.textPrimary}`}>
+            <p
+              className={`text-[10px] font-black uppercase tracking-wider ${theme.textPrimary}`}
+            >
               {item.category?.name || 'Dish'}
             </p>
           </div>
@@ -71,19 +80,22 @@ const FoodCard = ({ item, onClick, onQuickAdd, isInCart = false }) => {
         {/* 2. CONTENT SECTION */}
         <div className="px-1 space-y-2.5">
           <div className="flex justify-between items-start gap-2">
-            <h3 className="font-black text-slate-900 text-lg sm:text-xl uppercase tracking-tight leading-snug line-clamp-1 flex-1">
+            <h3 className="font-black text-slate-900 text-lg sm:text-xl uppercase tracking-tight leading-snug line-clamp-1 flex-1 group-hover:text-orange-600 transition-colors">
               {item.name}
             </h3>
             <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-100 shrink-0">
               <Star size={13} className="text-amber-500 fill-current" />
               <span className="text-xs font-black text-amber-800">
-                {item.ratingAverage ? parseFloat(item.ratingAverage).toFixed(1) : '5.0'}
+                {item.ratingAverage
+                  ? parseFloat(item.ratingAverage).toFixed(1)
+                  : '5.0'}
               </span>
             </div>
           </div>
 
           <p className="text-xs text-slate-400 font-medium line-clamp-2 leading-relaxed">
-            {item.description || 'Delicious dish crafted with fresh, premium ingredients.'}
+            {item.description ||
+              'Delicious authentic Ethiopian dish crafted with fresh, traditional ingredients.'}
           </p>
 
           {/* Dietary Flags */}
@@ -112,27 +124,36 @@ const FoodCard = ({ item, onClick, onQuickAdd, isInCart = false }) => {
         </div>
       </div>
 
-      {/* 3. PRICE & QUICK ACTION SECTION */}
+      {/* 3. PRICE & DETAILS ACTION SECTION */}
       <div className="flex items-center justify-between pt-4 px-1 border-t border-slate-50 mt-3">
         <div>
-          <p className={`text-xl sm:text-2xl font-black ${theme.textPrimary} leading-none`}>
+          <p
+            className={`text-xl sm:text-2xl font-black ${theme.textPrimary} leading-none`}
+          >
             {formatPrice(item.price)}
           </p>
-          {item.oldPrice && parseFloat(item.oldPrice) > parseFloat(item.price) && (
-            <p className="text-[11px] text-slate-300 line-through font-bold mt-1">
-              {formatPrice(item.oldPrice)}
-            </p>
-          )}
+          {item.oldPrice &&
+            parseFloat(item.oldPrice) > parseFloat(item.price) && (
+              <p className="text-[11px] text-slate-300 line-through font-bold mt-1">
+                {formatPrice(item.oldPrice)}
+              </p>
+            )}
         </div>
 
-        {onQuickAdd && (
+        {settings.orderingEnabled && onQuickAdd ? (
           <button
             disabled={isOutOfStock}
             onClick={(e) => {
               e.stopPropagation();
               if (!isOutOfStock) onQuickAdd(item);
             }}
-            title={isOutOfStock ? 'Item is currently sold out' : isInCart ? 'Added to Cart' : 'Add to Order'}
+            title={
+              isOutOfStock
+                ? 'Item is currently sold out'
+                : isInCart
+                ? 'Added to Cart'
+                : 'Add to Order'
+            }
             className={`p-3 rounded-2xl transition-all shadow-md active:scale-90 flex items-center justify-center ${
               isOutOfStock
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
@@ -141,8 +162,26 @@ const FoodCard = ({ item, onClick, onQuickAdd, isInCart = false }) => {
                 : `${theme.primary} ${theme.primaryHover} text-white ${theme.shadow}`
             }`}
           >
-            {isOutOfStock ? <Ban size={18} /> : isInCart ? <Check size={18} /> : <Plus size={18} />}
+            {isOutOfStock ? (
+              <Ban size={18} />
+            ) : isInCart ? (
+              <Check size={18} />
+            ) : (
+              <Plus size={18} />
+            )}
           </button>
+        ) : (
+          <div
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${theme.bgLight} ${theme.textPrimary} font-bold text-xs group-hover:shadow-sm transition-all`}
+          >
+            <span className="text-[10px] font-black uppercase tracking-wider">
+              {t('viewDetails')}
+            </span>
+            <ArrowRight
+              size={12}
+              className="group-hover:translate-x-0.5 transition-transform"
+            />
+          </div>
         )}
       </div>
     </motion.div>

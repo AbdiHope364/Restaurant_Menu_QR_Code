@@ -6,7 +6,6 @@ import {
   Clock,
   Flame,
   Star,
-  Info,
   ShieldAlert,
   TrendingDown,
   Leaf,
@@ -36,15 +35,21 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
   if (!item) return null;
 
   const getImgUrl = (path) => {
-    if (!path) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
+    if (!path)
+      return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
     if (path.startsWith('http')) return path;
-    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl =
+      import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
     return `${backendUrl}/${path.replace(/\\/g, '/')}`;
   };
 
   const discount =
     item.oldPrice && parseFloat(item.oldPrice) > parseFloat(item.price)
-      ? Math.round(((parseFloat(item.oldPrice) - parseFloat(item.price)) / parseFloat(item.oldPrice)) * 100)
+      ? Math.round(
+          ((parseFloat(item.oldPrice) - parseFloat(item.price)) /
+            parseFloat(item.oldPrice)) *
+            100,
+        )
       : 0;
 
   const totalPrice = parseFloat(item.price || 0) * quantity;
@@ -58,7 +63,10 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4">
-      <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+        onClick={onClose}
+      />
 
       <motion.div
         initial={{ y: '100%' }}
@@ -104,7 +112,9 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+                  setActiveIdx((prev) =>
+                    prev === 0 ? images.length - 1 : prev - 1,
+                  );
                 }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-slate-900/40 hover:bg-slate-900/80 backdrop-blur-md text-white rounded-full transition z-20"
               >
@@ -142,38 +152,81 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
         <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 pb-28">
           {/* Header & Meta */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${theme.bgLight} ${theme.textPrimary}`}>
-                {item.category?.name || 'Ethiopian Traditional'}
-              </span>
-              {item.preparationTime && (
-                <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                  <Clock size={12} /> {item.preparationTime} {t('mins')}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${theme.bgLight} ${theme.textPrimary}`}
+                >
+                  {item.category?.name || 'Ethiopian Traditional'}
                 </span>
-              )}
+                {item.preparationTime && (
+                  <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                    <Clock size={12} /> {item.preparationTime} {t('mins')}
+                  </span>
+                )}
+              </div>
+
+              {/* Price */}
+              <div className="text-right">
+                <p
+                  className={`text-2xl font-black ${theme.textPrimary} leading-none`}
+                >
+                  {formatPrice(item.price)}
+                </p>
+                {item.oldPrice &&
+                  parseFloat(item.oldPrice) > parseFloat(item.price) && (
+                    <p className="text-xs text-slate-300 line-through font-bold mt-0.5">
+                      {formatPrice(item.oldPrice)}
+                    </p>
+                  )}
+              </div>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
               {item.name}
             </h2>
 
-            <p className={`text-slate-600 leading-relaxed font-medium text-sm italic border-l-4 ${theme.borderLight} pl-4 py-1`}>
-              "{item.description || 'Crafted with premium authentic Ethiopian ingredients.'}"
+            <p
+              className={`text-slate-600 leading-relaxed font-medium text-sm italic border-l-4 ${theme.borderLight} pl-4 py-1`}
+            >
+              "
+              {item.description ||
+                'Crafted with premium authentic Ethiopian ingredients.'}
+              "
             </p>
           </div>
 
-          {/* SPECIAL INSTRUCTIONS */}
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <MessageSquare size={13} /> {t('specialInstructions')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('specialInstructionsPlaceholder')}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className={`w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none ${theme.ring} focus:ring-2`}
-            />
+          {/* Rating Display */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 text-amber-500">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    size={16}
+                    className={
+                      s <= Math.round(item.ratingAverage || 5)
+                        ? 'fill-current'
+                        : 'text-slate-200'
+                    }
+                  />
+                ))}
+              </div>
+              <span className="text-xs font-black text-slate-800">
+                {item.ratingAverage
+                  ? parseFloat(item.ratingAverage).toFixed(1)
+                  : '5.0'}
+              </span>
+            </div>
+
+            {onRate && (
+              <button
+                onClick={onRate}
+                className={`text-xs font-black ${theme.textPrimary} hover:underline uppercase tracking-wider`}
+              >
+                ★ Rate this dish
+              </button>
+            )}
           </div>
 
           {/* NUTRITION PROFILE */}
@@ -184,13 +237,27 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
               </h4>
               <div className="grid grid-cols-4 gap-4 relative z-10">
                 {[
-                  { label: t('calories'), val: item.calories ? `${item.calories} kcal` : '--' },
-                  { label: t('protein'), val: item.protein ? `${item.protein}g` : '--' },
-                  { label: t('carbs'), val: item.carbs ? `${item.carbs}g` : '--' },
-                  { label: t('fat'), val: item.fat ? `${item.fat}g` : '--' },
+                  {
+                    label: t('calories'),
+                    val: item.calories ? `${item.calories} kcal` : '--',
+                  },
+                  {
+                    label: t('protein'),
+                    val: item.protein ? `${item.protein}g` : '--',
+                  },
+                  {
+                    label: t('carbs'),
+                    val: item.carbs ? `${item.carbs}g` : '--',
+                  },
+                  {
+                    label: t('fat'),
+                    val: item.fat ? `${item.fat}g` : '--',
+                  },
                 ].map((n, i) => (
                   <div key={i} className="text-center">
-                    <p className={`text-lg font-black text-white ${theme.textPrimary}`}>
+                    <p
+                      className={`text-lg font-black text-white ${theme.textPrimary}`}
+                    >
                       {n.val}
                     </p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">
@@ -219,7 +286,9 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
                     </span>
                   ))
                 ) : (
-                  <p className="text-xs text-slate-400 italic">Fresh authentic ingredients</p>
+                  <p className="text-xs text-slate-400 italic">
+                    Fresh authentic ingredients
+                  </p>
                 )}
               </div>
             </div>
@@ -239,15 +308,17 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
                     </span>
                   ))
                 ) : (
-                  <p className="text-xs text-green-600 font-bold">No common allergens listed</p>
+                  <p className="text-xs text-green-600 font-bold">
+                    No common allergens listed
+                  </p>
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* SECTION 3: FIXED BOTTOM ORDER ACTION BAR */}
-        {settings.orderingEnabled && (
+        {/* SECTION 3: BOTTOM ACTION BAR */}
+        {settings.orderingEnabled ? (
           <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-4 md:p-5 border-t border-slate-100 flex items-center gap-3">
             {/* Quantity Selector */}
             <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl shrink-0">
@@ -277,7 +348,26 @@ const ItemDetailModal = ({ item, onClose, onRate, onAddToCart }) => {
                 <ShoppingBag size={16} />
                 <span>{t('addToCart')}</span>
               </span>
-              <span className="text-sm font-black">{formatPrice(totalPrice)}</span>
+              <span className="text-sm font-black">
+                {formatPrice(totalPrice)}
+              </span>
+            </button>
+          </div>
+        ) : (
+          <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-4 border-t border-slate-100 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                Price / ዋጋ
+              </p>
+              <p className={`text-xl font-black ${theme.textPrimary}`}>
+                {formatPrice(item.price)}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className={`py-3.5 px-8 rounded-2xl ${theme.primary} text-white font-black text-xs uppercase tracking-wider hover:opacity-90 transition active:scale-95 shadow-md ${theme.shadow}`}
+            >
+              {t('closeModal')}
             </button>
           </div>
         )}

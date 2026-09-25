@@ -317,25 +317,29 @@ const CustomerMenu = () => {
       </div>
 
       {/* FLOATING TABLE ACTIONS (Call Waiter / Request Bill) */}
-      <QuickActions
-        tableId={shortId}
-        tableName={tableName}
-        onRequestService={handleServiceRequest}
-      />
+      {settings.tableServiceEnabled && (
+        <QuickActions
+          tableId={shortId}
+          tableName={tableName}
+          onRequestService={handleServiceRequest}
+        />
+      )}
 
       {/* CART DRAWER */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-        onSubmitOrder={handleSubmitOrder}
-        tableId={shortId}
-        tableName={tableName}
-        activeOrder={activeOrder}
-      />
+      {settings.orderingEnabled && (
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          cartItems={cart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+          onClearCart={handleClearCart}
+          onSubmitOrder={handleSubmitOrder}
+          tableId={shortId}
+          tableName={tableName}
+          activeOrder={activeOrder}
+        />
+      )}
 
       {/* --- MODAL SYSTEM --- */}
       <AnimatePresence>
